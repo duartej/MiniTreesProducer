@@ -50,9 +50,13 @@ class MTAtom
 	  	virtual void Clean() = 0;
 		
 		
-	// ----------member data ---------------------------
 	protected:
+		// Registry values to be stored for the Physic object
+		virtual void registryvalues() = 0;
+
+		// ----------member data ---------------------------
 	  	std::vector<std::string> _InstancesCollection;
+	
 };
 
 

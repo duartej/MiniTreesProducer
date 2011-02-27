@@ -17,6 +17,9 @@
 MTAtom::MTAtom(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
 :_InstancesCollection( InstancesCollection )
 {
+	// Initialize and registry what branches of elements contains the
+	// MTAtom (see the concrete implementation of each atom)
+	registryvalues();
 }
 
 
