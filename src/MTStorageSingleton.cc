@@ -1,16 +1,8 @@
 // -*- C++ -*-
 //
 // Package:    MiniTreesProducer
-// Class:      MTStorageSingleton.h
+// Class:      MTStorageSingleton
 // 
-/**\class MTStorageSingleton MTStorageSingleton.hh MiniTrees/MiniTreesProducer/src/MTStorageSingleton.cc
-
- Description: Singleton class in charge of storage.
-
- Implementation:  It is called by the Builder to construct
-	 	  the TBranchs associated to this object.
-     
-*/
 //
 // Original Author: Jordi Duarte Campderros  
 //         Created:  Wed Nov  24 12:48:11 CET 2010

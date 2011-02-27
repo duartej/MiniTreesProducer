@@ -21,6 +21,7 @@
 // system include files
 #include<memory>
 #include<cstring>
+#include<list>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -34,6 +35,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "MiniTrees/MiniTreesProducer/interface/MTStorageSingleton.h"
+#include "MiniTrees/MiniTreesProducer/interface/MTAtomBuilder.h"
+#include "MiniTrees/MiniTreesProducer/interface/MTAtom.h"
 
 //
 // class declaration
@@ -48,13 +51,35 @@ class MiniTreesProducer : public edm::EDProducer
 	  	virtual void beginJob() ;
 	  	virtual void produce(edm::Event&, const edm::EventSetup&);
 	  	virtual void endJob() ;
+
 	  	// ----------member data ---------------------------
+		std::list<MTAtom *> mtatoms;
 };
 
 MiniTreesProducer::MiniTreesProducer(const edm::ParameterSet& iConfig)
 {
 	// Initialize the output ntuple file and the tree
 	MTStorageSingleton *stdirector = MTStorageSingleton::instance( iConfig.getParameter<std::string>("outputFile") );
+
+	// Getting the user collections (MTAtoms) to be processed
+	std::vector<edm::ParameterSet> Collection = iConfig.getParameter<std::vector<edm::ParameterSet> >("Collections");
+
+	for(unsigned int i=0; i < Collection.size(); ++i)
+	{
+                MTAtom *mtatom = MTAtomBuilder::Build( Collection.at(i) );
+
+                if( !mtatom )
+                {
+			//FIXME: El error lo deberia lanzar el Builder
+                        throw cms::Exception("UnimplementedFeature") <<  "ERROR in config file! The object '"
+                                << Collection.at(i).getParameter<std::string>("Type") << "' is not implemented to be stored.\n" <<
+                                "'I need some of this in your config file Parameter 'Type':\n " <<
+                                "\tMuon\n\tMET\n\tElectron\n\tPhoton\n\tJet\n\tBTag\n\tPF\n\tTau-ID\n\t" <<
+                                "aTrack\n\tVertex\n\tGenParticle\n\tTriggerResults" << std::endl;
+                }
+
+                //mtatoms.push_back( mtatoms ); QUE PROBLEMA HAY??
+        }
 
 }
 

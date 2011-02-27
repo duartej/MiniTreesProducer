@@ -3,7 +3,7 @@
 // Package:    MiniTreesProducer
 // Class:      MTAtom
 // 
-/**\class MTAtom MTAtom.hh ../src/MTAtom.cc
+/**\class MTAtom MTAtom.hh MiniTrees/MiniTreesProducer/src/MTAtom.cc
 
  Description: Abstract class defining the processing minimal unit (pmu). 
               The pmu is a group of variables which are going to be 

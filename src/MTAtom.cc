@@ -1,10 +1,12 @@
 // -*- C++ -*-
 //
-// Package:    MViniTreesProducer
+// Package:    MiniTreesProducer
+// Class:      MTAtom
 //
-// Original Author:  
+// Original Author: Jordi Duarte Campderros
 //         Created:  Wed Nov  24 12:53:08 CET 2010
-// $Id$
+//
+// jordi.duarte.campderros@cern.ch
 //
 //
 
