@@ -12,6 +12,8 @@
 //
 
 #include "MiniTrees/MiniTreesProducer/interface/MTStorageSingleton.h"
+#include "MiniTrees/MiniTreesProducer/interface/MTAtom.h"
+
 
 MTStorageSingleton* MTStorageSingleton::_instance = 0;
 TFile* MTStorageSingleton::_fs = 0;
@@ -48,7 +50,17 @@ MTStorageSingleton::~MTStorageSingleton()
 	}*/
 }
 
-void MTStorageSingleton::fill() const
+void MTStorageSingleton::fill()
 {
 	_tree->Fill();
+}
+
+void MTStorageSingleton::Register( std::list<MTAtom*> mtatoms)
+{
+	// Creating the branches
+	for(std::list<MTAtom*>::iterator it = mtatoms.begin(); it != mtatoms.end(); ++it)
+	{
+		// Calling the dedicated function from the atoms
+		(*it)->initbranches( _tree );
+	}
 }

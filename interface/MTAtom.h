@@ -27,35 +27,52 @@
 #ifndef MTAtom_HH
 #define MTAtom_HH
 
-#include <string>
-#include <vector>
+#include<map>
+#include<string>
+#include<vector>
 
 #include "FWCore/Framework/interface/Event.h"
+
+#include "TTree.h"
 
 #include "MiniTrees/MiniTreesProducer/interface/MTStorageSingleton.h"
 
 //
 // class declaration
 //
-class MTAtom 
+class MTAtom
 {
      	public:
 	  	MTAtom(const std::string&, const std::vector<std::string>&);
 	  	virtual ~MTAtom();
 	
 	  	virtual void beginJob(); 
-	  	virtual void produce(const edm::Event&, const edm::EventSetup&)=0;
+		// The processing method
+	  	virtual void produce(const edm::Event&, const edm::EventSetup&) = 0;
+		// To init the branches
+		virtual void initbranches( TTree * thetree ) = 0;
 	  	virtual void endJob();
 	  	static void fill(const MTStorageSingleton * stdirector );
 	  	virtual void Clean() = 0;
 		
 		
 	protected:
-		// Registry values to be stored for the Physic object
-		virtual void registryvalues() = 0;
+		virtual void registryvalues();
+		//virtual void storevalues( const int & Ninstance, const T & po ) = 0; --> Hacer la clase template ¿Es posible?
 
 		// ----------member data ---------------------------
 	  	std::vector<std::string> _InstancesCollection;
+		unsigned int _NInstances;
+		
+		// Correspondence between the instance name of the Physic object and
+		// a vector of <type> which will be the stored values
+		std::vector<std::map<std::string,std::vector<float>* > >_floatMethods;
+		std::vector<std::map<std::string,std::vector<int>* > >_intMethods;
+
+		// Names of the values
+		std::vector<std::string> _FVALUES;
+		std::vector<std::string> _IVALUES;
+
 	
 };
 

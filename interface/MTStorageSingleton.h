@@ -23,9 +23,14 @@
 
 // System includes
 #include<cstring> 
+#include<list>
+
+//#include "MiniTrees/MiniTreesProducer/interface/MTAtom.h"
 
 #include "TTree.h"
 #include "TFile.h"
+
+class MTAtom;
 
 class MTStorageSingleton
 {
@@ -33,7 +38,8 @@ class MTStorageSingleton
 		static MTStorageSingleton* instance(const std::string & outfilename);
 		~MTStorageSingleton();
 		//
-		void fill() const;
+		static void fill();
+		static void Register(std::list<MTAtom*> mtatoms);
 
 	protected:
 		// Constructor encapsulated

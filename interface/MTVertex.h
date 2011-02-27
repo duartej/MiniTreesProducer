@@ -22,8 +22,6 @@
 #define MTVertex_HH
 
 // system include files
-#include <map>
-
 #include "MiniTrees/MiniTreesProducer/interface/MTAtom.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -39,6 +37,7 @@ class MTVertex : public MTAtom {
 	  	virtual ~MTVertex();
 		
 	  	virtual void produce(const edm::Event&, const edm::EventSetup&);
+		virtual void initbranches( TTree* thetree );
 	  	virtual void Clean();
 
      	private:
@@ -46,15 +45,6 @@ class MTVertex : public MTAtom {
 		void storevalues( const int & Ninstance, const reco::Vertex & vertex ); 
 		
 	  	// ----------member data ---------------------------
-		// Correspondence between the 
-		std::vector<std::map<std::string,std::vector<float>* > >_floatMethods;
-		std::vector<std::map<std::string,std::vector<int>* > >_intMethods;
-
-		// Names of the values
-		std::vector<std::string> _FVALUES;
-		std::vector<std::string> _IVALUES;
-
-		unsigned int _NInstances;
 };
 
 #endif

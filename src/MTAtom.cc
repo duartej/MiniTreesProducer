@@ -18,8 +18,23 @@ MTAtom::MTAtom(const std::string & CollectionType, const std::vector<std::string
 :_InstancesCollection( InstancesCollection )
 {
 	// Initialize and registry what branches of elements contains the
-	// MTAtom (see the concrete implementation of each atom)
-	registryvalues();
+	// MTAtom (see the concrete implementation of registry value at each atom)
+	registryvalues(); // Pon un print para ver que realmente coge la de la hija
+	
+	_NInstances = _InstancesCollection.size();
+
+	// the list contains as much maps as instances we have
+	for(unsigned int i=0; i < _InstancesCollection.size(); ++i)
+	{	
+		// Initializations: Mapping the name of the instances to
+		//                  a vector of floats and integers which
+		//                  will be stored as ntuples
+		std::map<std::string, std::vector<float>* > floatMeth;
+		_floatMethods.push_back( floatMeth );
+		
+		std::map<std::string, std::vector<int>* > intMeth;
+		_intMethods.push_back( intMeth );
+	}
 }
 
 
@@ -48,3 +63,6 @@ void MTAtom::fill(const MTStorageSingleton * stdirector)
 	stdirector->fill();
 }
 
+void MTAtom::registryvalues()
+{
+}

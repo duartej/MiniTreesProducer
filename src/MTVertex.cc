@@ -8,39 +8,7 @@
 MTVertex::MTVertex(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
 :MTAtom(CollectionType, InstancesCollection)
 {
-	// Registring the values to be stored
-	// registryvalues(); ---> The mother class
-
-	_NInstances = _InstancesCollection.size();
-
-	// the list contains as much maps as instances we have
-	for(unsigned int i=0; i < _InstancesCollection.size(); ++i)
-	{	
-		// Initializations: Mapping the name of the instances to
-		//                  a vector of floats and integers which
-		//                  will be stored as ntuples
-		std::map<std::string, std::vector<float>* > floatMeth;
-		_floatMethods.push_back( floatMeth );
-		
-		std::map<std::string, std::vector<int>* > intMeth;
-		_intMethods.push_back( intMeth );
-	}
-	
-	for(unsigned int i=0; i < _InstancesCollection.size(); ++i)
-	{
-		const std::string instanceCol( "T_Vertex_"+_InstancesCollection[i] );
-		for(std::vector<std::string>::iterator it = _DVALUES.begin(); it != _DVALUES.end(); ++it)
-		{
-			_floatMethods[i][ *it ] = 0;
-			_ttree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<float>", &((_floatMethods.back())[ *it ]) );
-		}
-
-		for(std::vector<std::string>::iterator it = _IVALUES.begin(); it != _IVALUES.end(); ++it)
-		{
-			_intMethods[i][ *it ] = 0;
-			_ttree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<int>", &((_intMethods.back())[ *it ]) );
-		}
-   	}
+	registryvalues();
 }
 
 MTVertex::~MTVertex(){ }
@@ -53,9 +21,9 @@ void MTVertex::produce(const edm::Event& iEvent, const edm::EventSetup& /*iSetup
 		edm::Handle<std::vector<reco::Vertex> > vertexs;
 		iEvent.getByLabel(_InstancesCollection[i],vertexs);
 		// Initialization
-		for(std::map<std::string,std::vector<double>* >::iterator it = _floatMethods[i].begin(); it != _floatMethods[i].end(); ++it)
+		for(std::map<std::string,std::vector<float>* >::iterator it = _floatMethods[i].begin(); it != _floatMethods[i].end(); ++it)
 		{
-			it->second = new std::vector<double>;
+			it->second = new std::vector<float>;
 		}
 		for(std::map<std::string,std::vector<int>* >::iterator it = _intMethods[i].begin(); it != _intMethods[i].end(); ++it)
 		{
@@ -74,7 +42,7 @@ void MTVertex::Clean()
 {
 	for(unsigned int i=0; i < _NInstances; ++i)
 	{
-		for(std::map<std::string,std::vector<double>* >::iterator it = _floatMethods[i].begin(); it != _floatMethods[i].end(); ++it)
+		for(std::map<std::string,std::vector<float>* >::iterator it = _floatMethods[i].begin(); it != _floatMethods[i].end(); ++it)
 		{
 			if( it->second )
 			{
@@ -91,6 +59,26 @@ void MTVertex::Clean()
     	}
 }
 
+// Puedo meterla en la madre si ademas del tree paso como argumento el string T_Vertex y si hay float y/o ints
+void MTVertex::initbranches( TTree* thetree )
+{
+	for(unsigned int i=0; i < _InstancesCollection.size(); ++i)
+	{
+		const std::string instanceCol( "T_Vertex_"+_InstancesCollection[i] );
+		for(std::vector<std::string>::iterator it = _FVALUES.begin(); it != _FVALUES.end(); ++it)
+		{
+			_floatMethods[i][ *it ] = 0;
+			thetree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<float>", &((_floatMethods.back())[ *it ]) );
+		}
+
+		for(std::vector<std::string>::iterator it = _IVALUES.begin(); it != _IVALUES.end(); ++it)
+		{
+			_intMethods[i][ *it ] = 0;
+			thetree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<int>", &((_intMethods.back())[ *it ]) );
+		}
+   	}
+}
+
 
 void MTVertex::registryvalues()
 {
@@ -99,12 +87,12 @@ void MTVertex::registryvalues()
 	// storevalues method. If you add something
 	// here, you must be consistent and add the
 	// real storage in storevalues
-	_DVALUES.push_back( "z" );
-	_DVALUES.push_back( "y" );
-	_DVALUES.push_back( "x" );
-	_DVALUES.push_back( "Chi2Prob" );
-	_DVALUES.push_back( "rho" );
-	_DVALUES.push_back( "ndof" );
+	_FVALUES.push_back( "z" );
+	_FVALUES.push_back( "y" );
+	_FVALUES.push_back( "x" );
+	_FVALUES.push_back( "Chi2Prob" );
+	_FVALUES.push_back( "rho" );
+	_FVALUES.push_back( "ndof" );
 
 	_IVALUES.push_back( "isFake" );
 }

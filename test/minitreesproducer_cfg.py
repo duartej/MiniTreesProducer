@@ -35,12 +35,12 @@ process.source = cms.Source("PoolSource",
 
 process.minitrees = cms.EDProducer('MiniTreesProducer'
 		,outputFile = cms.string("outputfile.root")
-		#,Collections = 
-		#cms.VPSet(
-		#	cms.PSet(
-		#		Type = cms.string('Vertex')
-		#		, Instances = cms.vstring("offlinePrimaryVertices")
-		#		),
+		,Collections = 
+		cms.VPSet(
+			cms.PSet(
+				Type = cms.string('Vertex')
+				, Instances = cms.vstring("offlinePrimaryVertices")
+				),
 		#	cms.PSet(
 		#		Type = cms.string('TriggerResults')
 		#		, Instances = cms.vstring("REDIGI36X")
@@ -50,7 +50,7 @@ process.minitrees = cms.EDProducer('MiniTreesProducer'
 		#		, SummaryLabel = cms.string('hltTriggerSummaryAOD::REDIGI36X')
 		#		, Instances = cms.vstring("hltSingleMu3L3Filtered3","hltSingleMu9L3Filtered9","hltL1sDoubleLooseIsoTau15")
 		#		),
-		#	)     
+			)     
 )
 
 process.p = cms.Path(process.minitrees)

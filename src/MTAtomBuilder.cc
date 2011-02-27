@@ -15,8 +15,8 @@
 #include <vector>
 
 #include "MiniTrees/MiniTreesProducer/interface/MTAtomBuilder.h"
-/*#include "MiniTrees/MiniTreesProducer/interface/EventHeader.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTVertex.h"
+/*#include "MiniTrees/MiniTreesProducer/interface/EventHeader.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerResults.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerParticles.h"*/
 /*#include "../interface/MTMuon.hh"
@@ -55,11 +55,11 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
      	std::vector<std::string> InstancesCollection = iConfig.getParameter<std::vector<std::string> >("Instances");
 
 	// Building the concrete MTAtom
-     	/*if( CollectionType == "Vertex" )
+     	if( CollectionType == "Vertex" )
      	{
      		p = new MTVertex(CollectionType, InstancesCollection);
      	}
-	else if( CollectionType == "TriggerResults" )
+	/*else if( CollectionType == "TriggerResults" )
 	{
 		p = new MTTriggerResults(CollectionType, InstancesCollection);
 	}

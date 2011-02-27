@@ -54,12 +54,19 @@ class MiniTreesProducer : public edm::EDProducer
 
 	  	// ----------member data ---------------------------
 		std::list<MTAtom *> mtatoms;
+
+//		MTStorageSingleton * _stdirector;
 };
 
 MiniTreesProducer::MiniTreesProducer(const edm::ParameterSet& iConfig)
 {
-	// Initialize the output ntuple file and the tree
-	MTStorageSingleton *stdirector = MTStorageSingleton::instance( iConfig.getParameter<std::string>("outputFile") );
+	// Initialize the director for the storagement (output ntuple file and the tree)
+	MTStorageSingleton * stdirector = MTStorageSingleton::instance( iConfig.getParameter<std::string>("outputFile") );
+	if( stdirector == 0 )
+	{
+		std::cout << "PROBLEMS" << std::endl;
+	}
+
 
 	// Getting the user collections (MTAtoms) to be processed
 	std::vector<edm::ParameterSet> Collection = iConfig.getParameter<std::vector<edm::ParameterSet> >("Collections");
@@ -78,18 +85,28 @@ MiniTreesProducer::MiniTreesProducer(const edm::ParameterSet& iConfig)
                                 "aTrack\n\tVertex\n\tGenParticle\n\tTriggerResults" << std::endl;
                 }
 
-                //mtatoms.push_back( mtatoms ); QUE PROBLEMA HAY??
+                mtatoms.push_back( mtatom ); 
         }
-
+	//----> Poner un mensaje de que hay que llamar a esta funcion para inicializar los trees
+	// Initializing and registring the branches
+	MTStorageSingleton::Register( mtatoms );
 }
 
 
 MiniTreesProducer::~MiniTreesProducer()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+	for(std::list<MTAtom *>::iterator it = mtatoms.begin(); it != mtatoms.end(); ++it)
+	{
+		if( *it )
+		{
+			delete *it;
+		}
+	}
 
+	/*if( _stdirector )
+	{
+		delete _stdirector;
+	}*/
 }
 
 
@@ -101,24 +118,18 @@ MiniTreesProducer::~MiniTreesProducer()
 void
 MiniTreesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-/* This is an event example
-   //Read 'ExampleData' from the Event
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
+ 	for(std::list<MTAtom *>::iterator it = mtatoms.begin(); it != mtatoms.end(); ++it)
+	{
+		(*it)->produce(iEvent,iSetup);
+	}
+	
+	MTStorageSingleton::fill();
+	
+	for(std::list<MTAtom *>::iterator it = mtatoms.begin(); it != mtatoms.end(); ++it)
+	{
+		(*it)->Clean();
+	}
 
-   //Use the ExampleData to create an ExampleData2 which 
-   // is put into the Event
-   std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
-   iEvent.put(pOut);
-*/
-
-/* this is an EventSetup example
-   //Read SetupData from the SetupRecord in the EventSetup
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-*/
- 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
