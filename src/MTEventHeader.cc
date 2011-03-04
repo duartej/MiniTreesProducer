@@ -18,19 +18,15 @@ void MTEventHeader::initbranches( TTree* thetree )
 	
 	const std::string instanceCol("T_Event_");
 
-	void * trick;
-
 	for(std::vector<std::string>::iterator it = _IVALUES.begin(); it != _IVALUES.end(); ++it)
 	{
 		_intSimpleMap[ *it ] = -1;
-		trick = &(_intSimpleMap[ *it ]);
-		thetree->Branch( (instanceCol+(*it)).c_str(), &(*trick) , instanceCol+(*it).c_str()+"/I" );
+		thetree->Branch( (instanceCol+(*it)).c_str(), &(_intSimpleMap[*it]) , std::string(instanceCol+(*it).c_str()+"/I").c_str() );
 	}
 	for(std::vector<std::string>::iterator it = _FVALUES.begin(); it != _FVALUES.end(); ++it)
 	{
 		_floatSimpleMap[ *it ] = 0;
-		trick = &(_intSimpleMap[ *it ]);
-		thetree->Branch( (instanceCol+(*it)).c_str(), &(*trick), instanceCol+(*it).c_str()+"/F" );
+		thetree->Branch( (instanceCol+(*it)).c_str(), &(_intSimpleMap[*it]), std::string(instanceCol+(*it).c_str()+"/F").c_str() );
 	}
 }
 

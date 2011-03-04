@@ -38,6 +38,10 @@ process.minitrees = cms.EDProducer('MiniTreesProducer'
 		,Collections = 
 		cms.VPSet(
 			cms.PSet(
+				Type = cms.string('EventHeader')
+				, Instances = cms.vstring("")
+				),
+			cms.PSet(
 				Type = cms.string('Vertex')
 				, Instances = cms.vstring("offlinePrimaryVertices")
 				),

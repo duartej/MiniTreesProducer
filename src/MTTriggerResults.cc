@@ -147,6 +147,7 @@ void MTTriggerResults::storevalues( const int & Ninstance, const edm::TriggerRes
 
 void MTTriggerResults::endJob()
 {
+	// TODO: podria hacer un autoremove de las ramas que no estaban
 	std::cout << "Trigger paths missing: ";
 	for(std::set<std::string>::iterator it = _notFound.begin(); it != _notFound.end(); ++it)
 	{		
