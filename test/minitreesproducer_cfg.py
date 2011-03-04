@@ -22,9 +22,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MiniTree")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
@@ -49,11 +49,11 @@ process.minitrees = cms.EDProducer('MiniTreesProducer'
 				Type = cms.string('TriggerResults')
 				, Instances = cms.vstring("HLT")
 				),
-		#	cms.PSet(
-		#		Type = cms.string('TriggerParticles')
-		#		, SummaryLabel = cms.string('hltTriggerSummaryAOD::REDIGI36X')
-		#		, Instances = cms.vstring("hltSingleMu3L3Filtered3","hltSingleMu9L3Filtered9","hltL1sDoubleLooseIsoTau15")
-		#		),
+			cms.PSet(
+				Type = cms.string('TriggerParticles')
+				, SummaryLabel = cms.string('hltTriggerSummaryAOD::HLT')
+				, Instances = cms.vstring("hltSingleMu3L3Filtered3","hltSingleMu9L3Filtered9","hltL1sDoubleLooseIsoTau15")
+				),
 			)     
 )
 

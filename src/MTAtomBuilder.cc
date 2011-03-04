@@ -18,7 +18,7 @@
 #include "MiniTrees/MiniTreesProducer/interface/MTVertex.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerResults.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTEventHeader.h"
-/*#include "MiniTrees/MiniTreesProducer/interface/MTTriggerParticles.h"*/
+#include "MiniTrees/MiniTreesProducer/interface/MTTriggerParticles.h"
 /*#include "../interface/MTMuon.hh"
 #include "../interface/MTMET.hh"
 #include "../interface/MTJet.hh"
@@ -67,14 +67,15 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
 	{
 		p = new MTTriggerResults(CollectionType, InstancesCollection);
 	}
-	/*else if( CollectionType == "TriggerParticles" )
+	else if( CollectionType == "TriggerParticles" )
 	{
-		// Need more information
+		// extract the summary label parameter
 		std::string triggerProcess = iConfig.getParameter<std::string>("SummaryLabel");
+		// And put it the last one
 		InstancesCollection.push_back( triggerProcess );
 
 		p = new MTTriggerParticles(CollectionType, InstancesCollection);
-	}*/
+	}
 	/*
      	if(CollectionType == "Muon" ) 
    	{

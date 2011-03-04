@@ -25,7 +25,7 @@ void MTEventHeader::initbranches( TTree* thetree )
 	}
 	for(std::vector<std::string>::iterator it = _FVALUES.begin(); it != _FVALUES.end(); ++it)
 	{
-		_floatSimpleMap[ *it ] = 0;
+		_floatSimpleMap[ *it ] = 0;  //Or -1??
 		thetree->Branch( (instanceCol+(*it)).c_str(), &(_intSimpleMap[*it]), std::string(instanceCol+(*it).c_str()+"/F").c_str() );
 	}
 }
@@ -35,7 +35,7 @@ void MTEventHeader::registryvalues()
       	//set parameter defaults 
 	_Debug=false;
 	//
-	_IVALUES.push_back("Run_Number");
+	_IVALUES.push_back("RunNumber");
 	_IVALUES.push_back("EventNumber");
 	_IVALUES.push_back("LuminosityBlock");
 	_IVALUES.push_back("Bx");
