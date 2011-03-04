@@ -2,8 +2,10 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/VertexReco"/>
-<use   name="CommonTools/Statistics"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/BeamSpot"/>
+<use   name="CommonTools/Statistics"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>

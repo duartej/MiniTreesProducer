@@ -57,11 +57,4 @@ void MTAtom::endJob()
 {
 }
 
-/*void MTAtom::fill(const MTStorageSingleton * stdirector)
-{
-	// Puedo hacer esto o tener un contador de estado (un registro en el singleton de cuantos MTAtoms tengo
-	// y actualizar el estado), de tal forma que cuando todos los MTAtoms se hayan utilizado hacer la 
-	// llamada real TTree::Fill 
-	stdirector->fill();
-}*/
 
