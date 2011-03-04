@@ -103,10 +103,8 @@ MiniTreesProducer::~MiniTreesProducer()
 		}
 	}
 
-	/*if( _stdirector )
-	{
-		delete _stdirector;
-	}*/
+	// Saving the file
+	MTStorageSingleton::close();
 }
 
 
@@ -140,7 +138,12 @@ MiniTreesProducer::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-MiniTreesProducer::endJob() {
+MiniTreesProducer::endJob() 
+{
+	for(std::list<MTAtom *>::iterator it = mtatoms.begin(); it != mtatoms.end(); ++it)
+	{
+		(*it)->endJob();
+	}
 }
 
 //define this as a plug-in

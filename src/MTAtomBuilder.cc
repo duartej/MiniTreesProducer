@@ -16,9 +16,9 @@
 
 #include "MiniTrees/MiniTreesProducer/interface/MTAtomBuilder.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTVertex.h"
-/*#include "MiniTrees/MiniTreesProducer/interface/EventHeader.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerResults.h"
-#include "MiniTrees/MiniTreesProducer/interface/MTTriggerParticles.h"*/
+#include "MiniTrees/MiniTreesProducer/interface/MTEventHeader.h"
+/*#include "MiniTrees/MiniTreesProducer/interface/MTTriggerParticles.h"*/
 /*#include "../interface/MTMuon.hh"
 #include "../interface/MTMET.hh"
 #include "../interface/MTJet.hh"
@@ -59,11 +59,15 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
      	{
      		p = new MTVertex(CollectionType, InstancesCollection);
      	}
-	/*else if( CollectionType == "TriggerResults" )
+	else if( CollectionType == "EventHeader" ) //FIXME Ponerlo directamente en el MiniTreeProducer pues siempre tiene que estar
+	{
+		p = new MTEventHeader(CollectionType, InstancesCollection);
+	}
+	else if( CollectionType == "TriggerResults" )
 	{
 		p = new MTTriggerResults(CollectionType, InstancesCollection);
 	}
-	else if( CollectionType == "TriggerParticles" )
+	/*else if( CollectionType == "TriggerParticles" )
 	{
 		// Need more information
 		std::string triggerProcess = iConfig.getParameter<std::string>("SummaryLabel");

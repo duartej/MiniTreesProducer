@@ -8,12 +8,16 @@
 MTVertex::MTVertex(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
 :MTAtom(CollectionType, InstancesCollection)
 {
+	// Registry what variables to store
 	registryvalues();
+	// Initialize and registry what branches of elements contains
+	initialize();
 }
 
 MTVertex::~MTVertex(){ }
 
 // ------------ method called to for each event  ------------
+// Posiblemente si hago la clase madre template puedo utilizar el produce de la madre
 void MTVertex::produce(const edm::Event& iEvent, const edm::EventSetup& /*iSetup*/)
 {
 	for(unsigned int i=0; i < _NInstances; ++i)
@@ -68,7 +72,9 @@ void MTVertex::initbranches( TTree* thetree )
 		for(std::vector<std::string>::iterator it = _FVALUES.begin(); it != _FVALUES.end(); ++it)
 		{
 			_floatMethods[i][ *it ] = 0;
-			thetree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<float>", &((_floatMethods.back())[ *it ]) );
+			//thetree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<float>", &((_floatMethods.back())[ *it ]) );
+			// by coherence!
+			thetree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<float>", &((_floatMethods[i])[ *it ]) );
 		}
 
 		for(std::vector<std::string>::iterator it = _IVALUES.begin(); it != _IVALUES.end(); ++it)

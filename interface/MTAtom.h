@@ -47,17 +47,19 @@ class MTAtom
 	  	virtual ~MTAtom();
 	
 	  	virtual void beginJob(); 
-		// The processing method
-	  	virtual void produce(const edm::Event&, const edm::EventSetup&) = 0;
-		// To init the branches
-		virtual void initbranches( TTree * thetree ) = 0;
 	  	virtual void endJob();
-	  	static void fill(const MTStorageSingleton * stdirector );
+		// The processing method, where the storage algorithm is implemented
+	  	virtual void produce(const edm::Event&, const edm::EventSetup&) = 0;
+		// Initializes the branches in the file
+		virtual void initbranches( TTree * thetree ) = 0;
+	  	//static void fill(const MTStorageSingleton * stdirector );
+		// Cleannig...
 	  	virtual void Clean() = 0;
 		
 		
 	protected:
-		virtual void registryvalues();
+		virtual void registryvalues() = 0 ;
+		virtual void initialize();
 		//virtual void storevalues( const int & Ninstance, const T & po ) = 0; --> Hacer la clase template ¿Es posible?
 
 		// ----------member data ---------------------------

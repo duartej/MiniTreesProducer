@@ -40,6 +40,7 @@ class MTStorageSingleton
 		//
 		static void fill();
 		static void Register(std::list<MTAtom*> mtatoms);
+		static void close();
 
 	protected:
 		// Constructor encapsulated

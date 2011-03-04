@@ -35,6 +35,11 @@ MTStorageSingleton* MTStorageSingleton::instance(const std::string & outfilename
 
 MTStorageSingleton::~MTStorageSingleton()
 {
+}
+
+void MTStorageSingleton::close()
+{
+	std::cout << "Guardando fichero" << std::endl;
 	if( _fs )
 	{
 		_fs->Write();

@@ -41,10 +41,10 @@ process.minitrees = cms.EDProducer('MiniTreesProducer'
 				Type = cms.string('Vertex')
 				, Instances = cms.vstring("offlinePrimaryVertices")
 				),
-		#	cms.PSet(
-		#		Type = cms.string('TriggerResults')
-		#		, Instances = cms.vstring("REDIGI36X")
-		#		),
+			cms.PSet(
+				Type = cms.string('TriggerResults')
+				, Instances = cms.vstring("HLT")
+				),
 		#	cms.PSet(
 		#		Type = cms.string('TriggerParticles')
 		#		, SummaryLabel = cms.string('hltTriggerSummaryAOD::REDIGI36X')
