@@ -38,20 +38,21 @@
 // class declaration
 //
 
-class MTMuon : public MTAtom {
-   public:
-      MTMuon(const std::string&, const std::vector<std::string>&);
-      virtual ~MTMuon();
-
-      virtual void produce(const edm::Event&, const edm::EventSetup&);
-      virtual void initbranches( TTree * thetree );
-      virtual void Clean();
-
-   private:
-      virtual void registryvalues();
-      void storevalues( const int & Ninstance, const pat::Muon & muon);
-      // ----------member data ---------------------------a
-      reco::BeamSpot _beamSpot;
+class MTMuon : public MTAtom 
+{
+     	public:
+	  	MTMuon(const std::string&, const std::vector<std::string>&);
+	  	virtual ~MTMuon();
+		
+	  	virtual void produce(MTEventDirector * eventdirector);
+	  	virtual void initbranches( TTree * thetree );
+	  	virtual void Clean();
+		
+     	private:
+	  	virtual void registryvalues();
+	  	void storevalues( const int & Ninstance, const pat::Muon & muon);
+	  	// ----------member data ---------------------------
+		reco::BeamSpot _beamSpot;
 };
 
 #endif

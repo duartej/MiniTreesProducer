@@ -15,7 +15,7 @@
 
 
 MTAtom::MTAtom(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
-:_InstancesCollection( InstancesCollection )
+:_InstancesCollection( InstancesCollection ), _objectname( CollectionType )
 {
 	// A daughter must have this code in her constructor
 	// registryvalues();
@@ -57,4 +57,12 @@ void MTAtom::endJob()
 {
 }
 
+const std::string & MTAtom::getobjectname()
+{
+	return _objectname;
+}
 
+const std::vector<std::string> & MTAtom::getinstancesnames()
+{
+	return _InstancesCollection;
+}

@@ -59,10 +59,6 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
      	{
      		p = new MTVertex(CollectionType, InstancesCollection);
      	}
-	else if( CollectionType == "EventHeader" ) //FIXME Ponerlo directamente en el MiniTreeProducer pues siempre tiene que estar
-	{
-		p = new MTEventHeader(CollectionType, InstancesCollection);
-	}
 	else if( CollectionType == "TriggerResults" )
 	{
 		p = new MTTriggerResults(CollectionType, InstancesCollection);
@@ -76,8 +72,12 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
 
 		p = new MTTriggerParticles(CollectionType, InstancesCollection);
 	}
-	/*
-     	if(CollectionType == "Muon" ) 
+	else if( CollectionType == "EventHeader" ) //FIXME Ponerlo directamente en el MiniTreeProducer pues siempre tiene que estar
+	{
+		p = new MTEventHeader(CollectionType, InstancesCollection);
+	}
+	
+/*     	if(CollectionType == "Muon" ) 
    	{
 	 	p = new MTMuon(CollectionType, InstancesCollection);
    	}
@@ -104,9 +104,9 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
       	   {
     	   p= new MTElectron(CollectionType, InstancesCollection);
       	   }
-	   else if( CollectionType == "MToton" )
+	   else if( CollectionType == "Photon" )
      {
-       p= new MTMToton(CollectionType, InstancesCollection);
+       p= new MTPhoton(CollectionType, InstancesCollection);
      }
    else if( CollectionType == "Btag" )
      {

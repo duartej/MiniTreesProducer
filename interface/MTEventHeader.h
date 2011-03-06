@@ -27,7 +27,7 @@ class MTEventHeader : public MTAtom
 	      	MTEventHeader(const std::string & name, const std::vector<std::string> & vecNames ); 
 		~MTEventHeader();
 		
-	      	virtual void produce(edm::Event const& iEvent, const edm::EventSetup & iSetup);
+	      	virtual void produce(MTEventDirector * eventdirector);
 		virtual void initbranches( TTree* thetree );
 		void Clean();
 

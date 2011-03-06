@@ -3,6 +3,7 @@
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
+#include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
 
 
 MTVertex::MTVertex(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
@@ -18,12 +19,10 @@ MTVertex::~MTVertex(){ }
 
 // ------------ method called to for each event  ------------
 // Posiblemente si hago la clase madre template puedo utilizar el produce de la madre
-void MTVertex::produce(const edm::Event& iEvent, const edm::EventSetup& /*iSetup*/)
+void MTVertex::produce(MTEventDirector * eventdirector)
 {
 	for(unsigned int i=0; i < _NInstances; ++i)
 	{
-		edm::Handle<std::vector<reco::Vertex> > vertexs;
-		iEvent.getByLabel(_InstancesCollection[i],vertexs);
 		// Initialization
 		for(std::map<std::string,std::vector<float>* >::iterator it = _floatMethods[i].begin(); it != _floatMethods[i].end(); ++it)
 		{
@@ -33,7 +32,10 @@ void MTVertex::produce(const edm::Event& iEvent, const edm::EventSetup& /*iSetup
 		{
 			it->second = new std::vector<int>;
 		}
-
+		
+		// Get the necessary Products
+		const std::vector<reco::Vertex> * vertexs = 
+			static_cast<std::vector<reco::Vertex> *>(eventdirector->requestProduct( _InstancesCollection[i] ));
 		// Storing ...
 	  	for(unsigned int ivertex=0; ivertex < vertexs->size(); ++ivertex)
 		{
@@ -72,8 +74,6 @@ void MTVertex::initbranches( TTree* thetree )
 		for(std::vector<std::string>::iterator it = _FVALUES.begin(); it != _FVALUES.end(); ++it)
 		{
 			_floatMethods[i][ *it ] = 0;
-			//thetree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<float>", &((_floatMethods.back())[ *it ]) );
-			// by coherence!
 			thetree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<float>", &((_floatMethods[i])[ *it ]) );
 		}
 
@@ -105,6 +105,7 @@ void MTVertex::registryvalues()
 
 void MTVertex::storevalues( const int & Ninstance, const reco::Vertex & vertex )
 {
+	
 	_floatMethods[Ninstance][ "z" ]->push_back( vertex.z() );
 	_floatMethods[Ninstance][ "y" ]->push_back( vertex.y() );
 	_floatMethods[Ninstance][ "x" ]->push_back( vertex.x() );

@@ -36,7 +36,10 @@
 #include "TTree.h"
 
 #include "MiniTrees/MiniTreesProducer/interface/MTStorageSingleton.h"
+//#include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
 
+
+class MTEventDirector;
 //
 // class declaration
 //
@@ -49,12 +52,15 @@ class MTAtom
 	  	virtual void beginJob(); 
 	  	virtual void endJob();
 		// The processing method, where the storage algorithm is implemented
-	  	virtual void produce(const edm::Event&, const edm::EventSetup&) = 0;
+	  	virtual void produce(MTEventDirector * eventdirector) = 0;
 		// Initializes the branches in the file
 		virtual void initbranches( TTree * thetree ) = 0;
 	  	//static void fill(const MTStorageSingleton * stdirector );
 		// Cleannig...
 	  	virtual void Clean() = 0;
+		// Some getters
+		virtual const std::string & getobjectname();
+		virtual const std::vector<std::string> & getinstancesnames();
 		
 		
 	protected:
@@ -63,8 +69,12 @@ class MTAtom
 		//virtual void storevalues( const int & Ninstance, const T & po ) = 0; --> Hacer la clase template ¿Es posible?
 
 		// ----------member data ---------------------------
+		// Name of the EDM instances
 	  	std::vector<std::string> _InstancesCollection;
 		unsigned int _NInstances;
+		// The object type (Vertex, Muon, etc...) following the conventions
+		// of the MTAtomBuilder and configuration python file
+		std::string _objectname;
 		
 		// Correspondence between the instance name of the Physic object and
 		// a vector of <type> which will be the stored values
@@ -74,8 +84,6 @@ class MTAtom
 		// Names of the values
 		std::vector<std::string> _FVALUES;
 		std::vector<std::string> _IVALUES;
-
-	
 };
 
 

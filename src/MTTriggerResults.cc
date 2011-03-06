@@ -1,6 +1,8 @@
 
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerResults.h"
 
+#include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
+
 
 MTTriggerResults::MTTriggerResults(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
 :MTAtom(CollectionType, InstancesCollection)
@@ -14,14 +16,14 @@ MTTriggerResults::MTTriggerResults(const std::string & CollectionType, const std
 MTTriggerResults::~MTTriggerResults(){ }
 
 // ------------ method called to for each event  ------------
-void MTTriggerResults::produce(const edm::Event& iEvent, const edm::EventSetup& /*iSetup*/)
+void MTTriggerResults::produce(MTEventDirector * eventdirector)
 {
 	//FIXME: Check que solo haya una NInstance
 	for(unsigned int i=0; i < _NInstances; ++i)
 	{
 		std::string branchName( "T_HLT" ); //+_InstancesCollection[i] );
 
-		edm::TriggerResultsByName hlttrigbyname = iEvent.triggerResultsByName( _InstancesCollection[i] );
+		edm::TriggerResultsByName hlttrigbyname = eventdirector->getevent().triggerResultsByName( _InstancesCollection[i] );
 	      
 		// Initialization
 		for(std::map<std::string,std::vector<int>* >::iterator it = _intMethods[i].begin(); it != _intMethods[i].end(); ++it)

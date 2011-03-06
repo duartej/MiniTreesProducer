@@ -2,6 +2,7 @@
 #include<algorithm>
 
 #include "MiniTrees/MiniTreesProducer/interface/MTMuon.h"
+#include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
 
 
 
@@ -18,12 +19,12 @@ MTMuon::MTMuon(const std::string & CollectionType, const std::vector<std::string
 MTMuon::~MTMuon(){ }
 
 // ------------ method called to for each event  ------------
-void MTMuon::produce(const edm::Event& iEvent, const edm::EventSetup& /*iSetup*/)
+void MTMuon::produce(MTEventDirector * eventdirector)
 {
 	for(unsigned int i=0; i < _NInstances; ++i)
 	{
-		edm::Handle<edm::View<pat::Muon> > muons;
-		iEvent.getByLabel(_InstancesCollection[i],muons);
+		// Get the muon products
+		const edm::View<pat::Muon> * muons = static_cast<edm::View<pat::Muon> *>(eventdirector->requestProduct( _InstancesCollection[i] ));
 		// Ordering: In pt-decreasing order -------
 		std::map<float,pat::Muon> ptordermap;
 		std::vector<pat::Muon> orderedmuons;
@@ -49,11 +50,9 @@ void MTMuon::produce(const edm::Event& iEvent, const edm::EventSetup& /*iSetup*/
 		}
 
 		// I need the beam spot
-		edm::Handle<reco::BeamSpot> beamSpot;
-		iEvent.getByLabel("offlineBeamSpot", beamSpot);
-		this->_beamSpot = *beamSpot;
+		this->_beamSpot = *(static_cast<reco::BeamSpot *>(eventdirector->requestProduct( "BeamSpot" )));
 
-		// And the vertex... I have a problem. Como utilizo el MTVertex??
+		// And the vertex...
 
 		// Storing ...
 	  	for(unsigned int imuon=0; imuon < orderedmuons.size(); ++imuon)

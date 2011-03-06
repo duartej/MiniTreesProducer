@@ -1,5 +1,6 @@
 
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerParticles.h"
+#include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
 
 //FIXME: Some errors... La clase no acaba de funcionar bien.
 
@@ -32,10 +33,12 @@ MTTriggerParticles::MTTriggerParticles(const std::string & CollectionType, const
 MTTriggerParticles::~MTTriggerParticles(){ }
 
 // ------------ method called to for each event  ------------
-void MTTriggerParticles::produce(const edm::Event& iEvent, const edm::EventSetup& /*iSetup*/)
+void MTTriggerParticles::produce(MTEventDirector * eventdirector)
 {
+	// Only needed by the trigger: is not necessary than MTEventDirector
+	// catches it
 	edm::Handle<trigger::TriggerEvent> trgEvent;
-	iEvent.getByLabel( _summaryName, trgEvent );
+	eventdirector->getevent().getByLabel( _summaryName, trgEvent );
 
 	if( !trgEvent.isValid() )
 	{

@@ -2,6 +2,8 @@
 #include <iostream>
 
 #include "MiniTrees/MiniTreesProducer/interface/MTEventHeader.h"
+#include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 MTEventHeader::MTEventHeader( const std::string & colType, const std::vector<std::string> & InstColl )
@@ -52,8 +54,10 @@ MTEventHeader::~MTEventHeader()
 }
 
 // Analyze the event
-void MTEventHeader::produce(edm::Event const& iEvent, const edm::EventSetup & /*iSetup*/)
+void MTEventHeader::produce(MTEventDirector * eventdirector)
 {
+	const edm::Event & iEvent= eventdirector->getevent();
+
       	_intSimpleMap["RunNumber"]       = iEvent.id().run();
       	_intSimpleMap["EventNumber"]     = iEvent.id().event();
       	_intSimpleMap["LuminosityBlock"] = iEvent.luminosityBlock();

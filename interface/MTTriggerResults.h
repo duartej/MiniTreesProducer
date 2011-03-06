@@ -43,7 +43,7 @@ class MTTriggerResults : public MTAtom
 		
 		virtual void endJob();
 		//
-	  	virtual void produce(const edm::Event&, const edm::EventSetup&);
+	  	virtual void produce(MTEventDirector * eventdirector);
 		virtual void initbranches( TTree* thetree );
 	  	virtual void Clean();
      	private:

@@ -35,7 +35,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "MiniTrees/MiniTreesProducer/interface/MTStorageSingleton.h"
-#include "MiniTrees/MiniTreesProducer/interface/MTAtomBuilder.h"
+#include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
+//#include "MiniTrees/MiniTreesProducer/interface/MTAtomBuilder.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTAtom.h"
 
 //
@@ -55,7 +56,7 @@ class MiniTreesProducer : public edm::EDProducer
 	  	// ----------member data ---------------------------
 		std::list<MTAtom *> mtatoms;
 
-//		MTStorageSingleton * _stdirector;
+		MTEventDirector * _eventdirector;
 };
 
 MiniTreesProducer::MiniTreesProducer(const edm::ParameterSet& iConfig)
@@ -64,43 +65,23 @@ MiniTreesProducer::MiniTreesProducer(const edm::ParameterSet& iConfig)
 	MTStorageSingleton * stdirector = MTStorageSingleton::instance( iConfig.getParameter<std::string>("outputFile") );
 	if( stdirector == 0 )
 	{
-		std::cout << "PROBLEMS" << std::endl;
+		std::cout << "PROBLEMS" << std::endl; //FIXME: cmsException
 	}
 
-
-	// Getting the user collections (MTAtoms) to be processed
-	std::vector<edm::ParameterSet> Collection = iConfig.getParameter<std::vector<edm::ParameterSet> >("Collections");
-
-	for(unsigned int i=0; i < Collection.size(); ++i)
-	{
-                MTAtom *mtatom = MTAtomBuilder::Build( Collection.at(i) );
-
-                if( !mtatom )
-                {
-			//FIXME: El error lo deberia lanzar el Builder
-                        throw cms::Exception("UnimplementedFeature") <<  "ERROR in config file! The object '"
-                                << Collection.at(i).getParameter<std::string>("Type") << "' is not implemented to be stored.\n" <<
-                                "'I need some of this in your config file Parameter 'Type':\n " <<
-                                "\tMuon\n\tMET\n\tElectron\n\tPhoton\n\tJet\n\tBTag\n\tPF\n\tTau-ID\n\t" <<
-                                "aTrack\n\tVertex\n\tGenParticle\n\tTriggerResults" << std::endl;
-                }
-
-                mtatoms.push_back( mtatom ); 
-        }
+	// Initialize the event director (who get the control of the storage algorithms)
+	_eventdirector = new MTEventDirector( iConfig );
+	
 	//----> Poner un mensaje de que hay que llamar a esta funcion para inicializar los trees
-	// Initializing and registring the branches
-	MTStorageSingleton::Register( mtatoms );
+	// Quizas pasar al singleton el MTEventDirector?
+	MTStorageSingleton::Register( _eventdirector->getatoms() );
 }
 
 
 MiniTreesProducer::~MiniTreesProducer()
 {
-	for(std::list<MTAtom *>::iterator it = mtatoms.begin(); it != mtatoms.end(); ++it)
+	if( _eventdirector )
 	{
-		if( *it )
-		{
-			delete *it;
-		}
+		delete _eventdirector;
 	}
 
 	// Saving the file
@@ -116,18 +97,16 @@ MiniTreesProducer::~MiniTreesProducer()
 void
 MiniTreesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
- 	for(std::list<MTAtom *>::iterator it = mtatoms.begin(); it != mtatoms.end(); ++it)
-	{
-		(*it)->produce(iEvent,iSetup);
-	}
+	// Registring edm-products needed 
+	_eventdirector->preEvent(iEvent, iSetup);
+	// Get the values to store
+	_eventdirector->produceEvent();
 	
+	// Filling the trees
 	MTStorageSingleton::fill();
 	
-	for(std::list<MTAtom *>::iterator it = mtatoms.begin(); it != mtatoms.end(); ++it)
-	{
-		(*it)->Clean();
-	}
-
+	// Cleaning
+	_eventdirector->postEvent();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -140,6 +119,8 @@ MiniTreesProducer::beginJob()
 void 
 MiniTreesProducer::endJob() 
 {
+	// Maybe more convenient to do a endJob function for the MTEventDirector
+	std::list<MTAtom *> mtatoms = _eventdirector->getatoms();
 	for(std::list<MTAtom *>::iterator it = mtatoms.begin(); it != mtatoms.end(); ++it)
 	{
 		(*it)->endJob();

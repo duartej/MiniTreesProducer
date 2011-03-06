@@ -39,7 +39,7 @@ class MTTriggerParticles : public MTAtom
 	  	MTTriggerParticles(const std::string&, const std::vector<std::string>&);
 	  	virtual ~MTTriggerParticles();
 		
-	  	virtual void produce(const edm::Event&, const edm::EventSetup&);
+	  	virtual void produce(MTEventDirector * eventdirector);
 		virtual void initbranches( TTree* thetree );
 	  	virtual void Clean();
      	private:
