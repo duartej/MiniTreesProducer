@@ -61,7 +61,7 @@ void MTEventDirector::preEvent(const edm::Event & iEvent, const edm::EventSetup 
 {
 	this->_Event = &iEvent;
 
-	// Get EDM handles common
+	// Get common EDM handles
 	edm::Handle<reco::BeamSpot> beamSpot;
 	iEvent.getByLabel("offlineBeamSpot", beamSpot);
 	_activehandles["BeamSpot"]=beamSpot.product();

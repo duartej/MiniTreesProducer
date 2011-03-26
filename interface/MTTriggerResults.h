@@ -24,6 +24,7 @@
 
 // system include files
 #include <set>
+#include <list>
 
 #include "TTree.h"
 
@@ -51,6 +52,7 @@ class MTTriggerResults : public MTAtom
 		void storevalues( const int & Ninstance, const edm::TriggerResultsByName & hltresultsbyName );
 		
 	  	// ----------member data ---------------------------
+		std::list<std::string> _triggerPaths;
 		// Trigger paths not found
 		std::set<std::string> _notFound;
 };

@@ -61,6 +61,14 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
      	}
 	else if( CollectionType == "TriggerResults" )
 	{
+		// extract the name of the HLT trigger Paths to evaluate
+		std::vector<std::string> triggerPaths = iConfig.getParameter<std::vector<std::string> >("TriggerPaths");
+		// And put it the last one
+		for(std::vector<std::string>::iterator it = triggerPaths.begin(); it != triggerPaths.end(); it++)
+		{
+			InstancesCollection.push_back( *it );
+		}
+
 		p = new MTTriggerResults(CollectionType, InstancesCollection);
 	}
 	else if( CollectionType == "TriggerParticles" )

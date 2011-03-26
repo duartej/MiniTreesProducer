@@ -7,6 +7,24 @@
 MTTriggerResults::MTTriggerResults(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
 :MTAtom(CollectionType, InstancesCollection)
 {
+	// Extract the trigger paths (all but the first one)
+	while( _InstancesCollection.size() > 1 )
+	{
+		_triggerPaths.push_back( _InstancesCollection.back() );
+		_InstancesCollection.pop_back();
+	}
+	/*for(unsigned int i= 1; i < _InstancesCollection.size(); i++)
+	{
+		_triggerPaths = _InstancesCollection.at(i);
+	}
+	for(unsigned int i= 1; i < _InstancesCollection.size(); i++)
+	{
+		_InstancesCollection.pop_back();
+	}*/
+
+	// Redo the work done by the base class constructor
+	// Now _InstancesCollection only contains the name of the trigger process (HLT likely)
+	
 	// Registry what variables to store
 	registryvalues();
 	// Initialize and registry what branches of elements contains
@@ -18,22 +36,20 @@ MTTriggerResults::~MTTriggerResults(){ }
 // ------------ method called to for each event  ------------
 void MTTriggerResults::produce(MTEventDirector * eventdirector)
 {
-	//FIXME: Check que solo haya una NInstance
-	for(unsigned int i=0; i < _NInstances; ++i)
-	{
-		std::string branchName( "T_HLT" ); //+_InstancesCollection[i] );
 
+	for(unsigned int i = 0; i < _NInstances; ++i)
+	{
+		//std::string branchName( "T_HLT" ); //+_InstancesCollection[i] );
+		//	//
 		edm::TriggerResultsByName hlttrigbyname = eventdirector->getevent().triggerResultsByName( _InstancesCollection[i] );
-	      
-		// Initialization
-		for(std::map<std::string,std::vector<int>* >::iterator it = _intMethods[i].begin(); it != _intMethods[i].end(); ++it)
+		// Initialization (Note that we are hardcoding the number of trigger process we can evaluate to 0 
+ 		for(std::map<std::string,std::vector<int>* >::iterator it = _intMethods[i].begin(); it != _intMethods[i].end(); ++it)
 		{
 			it->second = new std::vector<int>;
 		}
-
 		// Storing ...
 		storevalues( i, hlttrigbyname );
-   	}
+	}
 }
 
 void MTTriggerResults::Clean()
@@ -52,10 +68,13 @@ void MTTriggerResults::Clean()
 
 void MTTriggerResults::initbranches( TTree* thetree )
 {
-	for(unsigned int i=0; i < _InstancesCollection.size(); ++i)
-	{	
-		const std::string instanceCol( "T_" ); //+_InstancesCollection[i] );
-
+	// FIXME: Controlling only 1 instances because the branches are not ready
+	// to include more ( to do it just include the string with the name of the
+	// instance in the instanceCol string
+	for(unsigned int i=0; i < _NInstances; ++i)
+	{
+		const std::string instanceCol( "T_" ); 
+		
 		for(std::vector<std::string>::iterator it = _IVALUES.begin(); it != _IVALUES.end(); ++it)
 		{
 			_intMethods[i][ *it ] = 0;
@@ -71,7 +90,16 @@ void MTTriggerResults::registryvalues()
 	// storevalues method. If you add something
 	// here, you must be consistent and add the
 	// real storage in storevalues
-	_IVALUES.push_back( "HLT_Mu3" );
+	//
+	// Extracted from the _InstancesCollection list 
+	// (is not needed to copy the content of _InstancesCollection to _IVALUES, but
+	// by coherence done: _InstancesCollection is the initializer container, _IVALUES
+	// is the run and storage container)
+	for(std::list<std::string>::iterator it = _triggerPaths.begin(); it != _triggerPaths.end(); ++it)
+	{
+		_IVALUES.push_back( *it );
+	}
+	/*_IVALUES.push_back( "HLT_Mu3" );
 	_IVALUES.push_back( "HLT_Ele10_LW_L1R" );
 	_IVALUES.push_back( "HLT_Ele10_SW_L1R" );
 	_IVALUES.push_back( "HLT_Ele15_SW_L1R" );
@@ -119,7 +147,7 @@ void MTTriggerResults::registryvalues()
 	_IVALUES.push_back( "HLT_Ele15_LW_L1R" );
 	_IVALUES.push_back( "HLT_Ele15_SW_CaloEleId_L1R" );
 	_IVALUES.push_back( "HLT_Ele20_SW_L1R" );
-	_IVALUES.push_back( "HLT_IsoMu3" );
+	_IVALUES.push_back( "HLT_IsoMu3" );*/
 }
 
 void MTTriggerResults::storevalues( const int & Ninstance, const edm::TriggerResultsByName & hltResName )
@@ -150,7 +178,7 @@ void MTTriggerResults::storevalues( const int & Ninstance, const edm::TriggerRes
 void MTTriggerResults::endJob()
 {
 	// TODO: podria hacer un autoremove de las ramas que no estaban
-	std::cout << "Trigger paths missing: ";
+	std::cout << "Trigger paths missing: " << _notFound.size() << " (from a " << _IVALUES.size() << " total)";
 	for(std::set<std::string>::iterator it = _notFound.begin(); it != _notFound.end(); ++it)
 	{		
 		std::cout << "\n\t" << *it;
