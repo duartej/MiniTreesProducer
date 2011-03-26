@@ -100,7 +100,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
-	    'file:/gpfs/gaes/cms/store/data/Run2010B/Mu/AOD/Dec22ReReco_v1/0001/30AA97EA-120E-E011-BA5F-E0CB4E29C4C2.root'
+	    #'file:/gpfs/gaes/cms/store/data/Run2010B/Mu/AOD/Dec22ReReco_v1/0001/30AA97EA-120E-E011-BA5F-E0CB4E29C4C2.root'
+	    'file:/gpfs/csic_projects/cms/duarte/CMSSW_64b/CMSSW_4_1_3/src/MiniTrees/MiniTreesProducer/test/patrecoTest_1MuSkim_Run2011A_MuEG_AOD_PromptReco-v2.root'
     )
 )
 
@@ -115,6 +116,10 @@ process.minitrees = cms.EDProducer('MiniTreesProducer'
 			cms.PSet(
 				Type = cms.string('Vertex')
 				, Instances = cms.vstring("offlinePrimaryVertices")
+				),
+			cms.PSet(
+				Type = cms.string('Muon')
+				, Instances = cms.vstring("selectedPatMuons")
 				),
 			cms.PSet(
 				Type = cms.string('TriggerResults')

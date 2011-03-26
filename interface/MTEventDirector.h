@@ -39,6 +39,7 @@ class MTEventDirector
 		// Some getters
 		inline std::list<MTAtom *> & getatoms() { return _mtatoms; };
 		inline const edm::Event & getevent() { return *_Event; };
+		inline const edm::EventSetup & getsetup() { return *_iSetup; };
 		// Initialize the event, extract the edm-product needed, ...
 		void preEvent(const edm::Event & iEvent,const edm::EventSetup & iSetup );
 		void produceEvent();
@@ -56,6 +57,8 @@ class MTEventDirector
 
 		// Event
 		const edm::Event * _Event;  // A lo mejor no puedo usar referencia, usare pointer
+		//Setup
+		const edm::EventSetup * _iSetup;
 
 
 

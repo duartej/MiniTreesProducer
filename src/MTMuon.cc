@@ -1,8 +1,15 @@
 
 #include<algorithm>
+#include<cmath>
 
 #include "MiniTrees/MiniTreesProducer/interface/MTMuon.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
+
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+//#include "TrackingTools/IPTools/interface/IPTools.h"
+//#include "TrackingTools/IPTools/interface/ImpactParameterComputer.h"
+//#include "TVector3.h"
+#include "Math/VectorUtil.h"
 
 
 
@@ -50,9 +57,16 @@ void MTMuon::produce(MTEventDirector * eventdirector)
 		}
 
 		// I need the beam spot
-		this->_beamSpot = *(static_cast<reco::BeamSpot *>(eventdirector->requestProduct( "BeamSpot" )));
+		this->_beamSpot = static_cast<reco::BeamSpot *>(eventdirector->requestProduct( "BeamSpot" ));
 
-		// And the vertex...
+		// the vertices...
+		this->_vertices = static_cast<std::vector<reco::Vertex> *>(eventdirector->requestProduct( "Vertex" ));
+
+		// and the tracks ...
+		this->_tracks = static_cast<std::vector<reco::Track> *>(eventdirector->requestProduct( "Track" ));
+
+		// And even the Setup
+		this->_setup = &(eventdirector->getsetup());
 
 		// Storing ...
 	  	for(unsigned int imuon=0; imuon < orderedmuons.size(); ++imuon)
@@ -174,6 +188,9 @@ void MTMuon::registryvalues()
         _FVALUES.push_back("EcalVeto");
         _FVALUES.push_back("HcalVeto");
 
+	_FVALUES.push_back("Beta");
+	_FVALUES.push_back("DeltaBeta");
+
 }
 
 void MTMuon::storevalues( const int & Ninstance, const pat::Muon & muon )
@@ -213,31 +230,36 @@ void MTMuon::storevalues( const int & Ninstance, const pat::Muon & muon )
         
 	_floatMethods[Ninstance]["SegmentCompatibility"]->push_back(muon::segmentCompatibility(muon));
 	
-	// Usign the inner track reference
-	try
+	// Using the inner track reference
+	if( not muon.innerTrack().isNull() )
 	{
 		_intMethods[Ninstance]["NValidHitsInTrk"]->push_back(muon.innerTrack()->hitPattern().numberOfValidTrackerHits());
 		_intMethods[Ninstance]["NValidPixelHitsInTrk"]->push_back(muon.innerTrack()->hitPattern().numberOfValidPixelHits());
 		_floatMethods[Ninstance]["Chi2InTrk"]->push_back(muon.innerTrack()->chi2());
 		_floatMethods[Ninstance]["dofInTrk"]->push_back(muon.innerTrack()->ndof());
         	 _floatMethods[Ninstance]["deltaPt"]->push_back(muon.innerTrack()->ptError());
-        	_floatMethods[Ninstance]["IPwrtBSInTrack"]->push_back(muon.innerTrack()->dxy(this->_beamSpot.position()));
-	}
-	catch(...)
-	{
+        	_floatMethods[Ninstance]["IPwrtBSInTrack"]->push_back(muon.innerTrack()->dxy(this->_beamSpot->position()));
+		// Impact parameter issues
+	/*	if( this->_vertices->size() > 0)
+		{
+			// Using the vxt with the highest pt sum
+			IPTools::ImpactParameterComputer IPComp( this->_vertices->at(0) );
+			Measurement1D mess1D = IPComp.computeIP( this->_setup, *(muon.innerTrack()) );
+
+			_floatMethods[Ninstance]["IPSigInTrack"]->push_back( mess1D.significance() );
+			_floatMethods[Ninstance]["IPAbsInTrack"]->push_back( mess1D.value() );
+		}*/
+
 	}
 
 	// If standalone track is not present get an null vector
-	try
+	if( not muon.standAloneMuon().isNull() )
 	{
 		_intMethods[Ninstance]["NValidHitsSATrk"]->push_back(muon.standAloneMuon()->hitPattern().numberOfValidMuonHits());
 	}
-	catch( ... )
-	{
-	}
 
 	// Global track reference
-	try
+	if( (not muon.globalTrack().isNull()) and muon.isGlobalMuon() )
 	{
 		_floatMethods[Ninstance]["OutPosx"]->push_back(muon.globalTrack()->outerPosition().x());
 	 	_floatMethods[Ninstance]["OutPosy"]->push_back(muon.globalTrack()->outerPosition().y());
@@ -252,22 +274,63 @@ void MTMuon::storevalues( const int & Ninstance, const pat::Muon & muon )
 
 		_floatMethods[Ninstance]["NormChi2GTrk"]->push_back(muon.globalTrack()->normalizedChi2());
 		
-		_floatMethods[Ninstance]["IPwrtBSGTrack"]->push_back(muon.globalTrack()->dxy(this->_beamSpot.position()));
+		_floatMethods[Ninstance]["IPwrtBSGTrack"]->push_back(muon.globalTrack()->dxy(this->_beamSpot->position()));
 	
 		_intMethods[Ninstance]["NValidHitsGTrk"]->push_back(muon.globalTrack()->hitPattern().numberOfValidMuonHits());
-	}
-	catch( ... )
-	{
+		
+		// IP and Beta (DBeta) 
+		if( this->_vertices->size() > 0)
+		{
+	/*		// Using the vxt with the highest pt sum
+			IPTools::ImpactParameterComputer IPComp( this->_vertices->at(0) );
+			Measurement1D mess1D = IPComp.computeIP( this->_setup, *(muon.globalTrack()) );
+
+			_floatMethods[Ninstance]["IPSigGTrack"]->push_back( mess1D.significance() );
+			_floatMethods[Ninstance]["IPAbsGTrack"]->push_back( mess1D.value() );
+			DONDE CONYO ESTA DEFINIDO ImpactParameterComputer ?????
+			*/
+			
+			// Beta and DeltaBeta
+			float beta = 0.0;
+			float Dbeta = 0.0;
+			for(std::vector<reco::Track>::iterator track = this->_tracks->begin(); track != this->_tracks->end(); track++)
+			{
+				float dR = ROOT::Math::VectorUtil::DeltaR( track->momentum(),muon.globalTrack()->momentum() );
+				if( dR < 0.01 )
+				{
+					continue;
+				}
+				if( dR < 0.3 )
+				{
+					if( fabs( track->vz() - this->_vertices->at(0).z() ) <0.2 ) 
+					{
+						beta += track->pt();
+					}
+					else
+					{
+					       	Dbeta+=track->pt();
+					}
+				}
+			}
+
+			_floatMethods[Ninstance]["DeltaBeta"]->push_back( Dbeta );
+			float storebeta = 0.0;
+			if( fabs(Dbeta) < 1e-25 )  // WATCH!! float 0? Better less than
+			{
+				storebeta = 1.0;
+			}
+			else
+			{
+				storebeta = beta/(beta+Dbeta);
+			}
+			_floatMethods[Ninstance]["Beta"]->push_back( storebeta );
+		}
 	}
 		
 
         _floatMethods[Ninstance]["SumIsoCalo"]->push_back(muon.caloIso());
         _floatMethods[Ninstance]["SumIsoTrack"]->push_back(muon.trackIso());
-       /* _floatMethods[Ninstance]["IPAbsGTrack"]->push_back(muon.);
-        _floatMethods[Ninstance]["IPSigGTrack"]->push_back(muon.);
-        _floatMethods[Ninstance]["IPAbsInTrack"]->push_back(muon.);
-        _floatMethods[Ninstance]["IPSigInTrack"]->push_back(muon.);
-        _floatMethods[Ninstance]["IPwrtAveBSInTrack"]->push_back(muon.);*/
+        _floatMethods[Ninstance]["IPwrtAveBSInTrack"]->push_back(muon.dB());
         _floatMethods[Ninstance]["vz"]->push_back(muon.vz());
         _floatMethods[Ninstance]["vy"]->push_back(muon.vy());
         _floatMethods[Ninstance]["vx"]->push_back(muon.vx());

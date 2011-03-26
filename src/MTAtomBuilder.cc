@@ -19,8 +19,8 @@
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerResults.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTEventHeader.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerParticles.h"
-/*#include "../interface/MTMuon.hh"
-#include "../interface/MTMET.hh"
+#include "MiniTrees/MiniTreesProducer/interface/MTMuon.h"
+/*#include "../interface/MTMET.hh"
 #include "../interface/MTJet.hh"
 #include "../interface/MTTrack.hh"
 #include "../interface/MTGenParticle.hh"*/
@@ -85,12 +85,12 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
 		p = new MTEventHeader(CollectionType, InstancesCollection);
 	}
 	
-/*     	if(CollectionType == "Muon" ) 
+     	if(CollectionType == "Muon" ) 
    	{
 	 	p = new MTMuon(CollectionType, InstancesCollection);
    	}
   	
-     	else if( CollectionType == "MET" )
+/*     	else if( CollectionType == "MET" )
    	{
 	 	p = new MTMET(CollectionType, InstancesCollection);
    	}

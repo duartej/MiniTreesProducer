@@ -60,6 +60,7 @@ MTEventDirector::~MTEventDirector()
 void MTEventDirector::preEvent(const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
 	this->_Event = &iEvent;
+	this->_iSetup = &iSetup;
 
 	// Get common EDM handles
 	edm::Handle<reco::BeamSpot> beamSpot;
@@ -75,6 +76,7 @@ void MTEventDirector::preEvent(const edm::Event & iEvent, const edm::EventSetup 
 
 		for(std::vector<std::string>::const_iterator name = instancenames.begin(); name !=  instancenames.end(); ++name)
 		{
+			//FIXME : Error si no esta aqui
 			if( objectname == "Vertex" )
 			{
 				edm::Handle<std::vector<reco::Vertex> > handle; 
@@ -89,6 +91,13 @@ void MTEventDirector::preEvent(const edm::Event & iEvent, const edm::EventSetup 
 				// Product in memory, registring
 				_activehandles[*name] = handle.product();
 			}
+	/*		else if( objectname == "Track" )
+			{
+				edm::Handle<edm::View<pat::Muon> > handle; 
+				iEvent.getByLabel( (*name), handle);
+				// Product in memory, registring
+				_activehandles[*name] = handle.product();
+			}*/
 		}
 	}
 }

@@ -31,8 +31,10 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-//#include "DataFormats/MuonReco/interface/Muon.h"
-//#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 //
 // class declaration
@@ -52,7 +54,12 @@ class MTMuon : public MTAtom
 	  	virtual void registryvalues();
 	  	void storevalues( const int & Ninstance, const pat::Muon & muon);
 	  	// ----------member data ---------------------------
-		reco::BeamSpot _beamSpot;
+		reco::BeamSpot *_beamSpot;
+		std::vector<reco::Vertex> *_vertices;
+		std::vector<reco::Track> *_tracks;
+
+		// We want a copy of the EventSetup, but it is needed in every event
+		mutable const edm::EventSetup *_setup;
 };
 
 #endif
