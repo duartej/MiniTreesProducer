@@ -1,6 +1,7 @@
 
 #include<algorithm>
 #include<cmath>
+#include<set>
 
 #include "MiniTrees/MiniTreesProducer/interface/MTMuon.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
@@ -16,14 +17,75 @@
 MTMuon::MTMuon(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
 :MTAtom(CollectionType, InstancesCollection)
 {
+	// Keys that PF won't use
+	_pfRejectINT.push_back("IsTMLSOLPT");
+	_pfRejectINT.push_back("IsTMLSOLPL");
+	_pfRejectINT.push_back("IsTrackerMuonArbitrated");
+        _pfRejectINT.push_back("IsAllArbitrated");
+	_pfRejectINT.push_back("IsTMLastStationLoose"); 
+        _pfRejectINT.push_back("IsTMLastStationTight"); 
+        _pfRejectINT.push_back("IsTM2DCompatibilityLoose");
+        _pfRejectINT.push_back("IsTM2DCompatibilityTight");
+        _pfRejectINT.push_back("IsTMOneStationLoose");
+        _pfRejectINT.push_back("IsTMOneStationTight");
+        _pfRejectINT.push_back("IsTMLSOPL");
+        _pfRejectINT.push_back("IsGMTkChiCompatibility");
+        _pfRejectINT.push_back("IsGMStaChiCompatibility");
+        _pfRejectINT.push_back("IsGMTkKinkTight");
+        _pfRejectINT.push_back("IsTMLastStationAngLoose");
+        _pfRejectINT.push_back("IsTMOneStationAngLoose");
+        _pfRejectINT.push_back("IsTMOneStationAngTight");
+
+        _pfRejectFLOAT.push_back("OutPosx");
+        _pfRejectFLOAT.push_back("OutPosy");
+        _pfRejectFLOAT.push_back("OutPosz");
+        _pfRejectFLOAT.push_back("OutMomx");
+        _pfRejectFLOAT.push_back("OutMomy");
+        _pfRejectFLOAT.push_back("OutMomz");
+        _pfRejectFLOAT.push_back("OutPhi");
+        _pfRejectFLOAT.push_back("OutEta");
+        _pfRejectFLOAT.push_back("OutTheta");
+        _pfRejectFLOAT.push_back("OutRadius");
+
+
 	// Registry what variables to store
 	registryvalues();
 	// And initializes, registry branches, ...
 	initialize();
+	
+	// update the values, different behaviour if PF
+	updateregister();
 }
 
 
 MTMuon::~MTMuon(){ }
+
+void MTMuon::updateregister()
+{
+	for(unsigned int i = 0; i < _NInstances; ++i)
+	{
+		const std::string instancename = _InstancesCollection.at(i);
+		size_t pos = instancename.find("PF");
+		if( pos == std::string::npos )
+		{
+			_isPF[i] = false;
+		}
+		else
+		{
+			_isPF[i] = true;
+			// Auxiliar vector with indexs to be erased
+			// Now de-register 
+			for(std::vector<std::string>::iterator it = _pfRejectINT.begin(); it != _pfRejectINT.end(); ++it)
+			{
+				_intMethods[i].erase( *it );
+			}
+			for(std::vector<std::string>::iterator it = _pfRejectFLOAT.begin(); it != _pfRejectFLOAT.end(); ++it)
+			{
+				_floatMethods[i].erase( *it );
+			}
+		}
+	}
+}
 
 // ------------ method called to for each event  ------------
 void MTMuon::produce(MTEventDirector * eventdirector)
@@ -101,16 +163,34 @@ void MTMuon::initbranches( TTree * thetree )
 {
      	for(unsigned int i=0; i < _InstancesCollection.size(); ++i)
    	{
-		const std::string instanceCol("T_Muon"); 
+		// TO be used with PF
+		std::set<std::string> rejectedF( _pfRejectFLOAT.begin(), _pfRejectFLOAT.end() );
+		std::set<std::string> rejectedI( _pfRejectINT.begin(), _pfRejectINT.end() );
+
+		std::string instanceCol("T_Muon"); 
+		if( _isPF[i] )
+		{
+			instanceCol = "T_pfMuon";
+		}
 
 		for(std::vector<std::string>::iterator it = _FVALUES.begin(); it != _FVALUES.end(); ++it)
 		{
+			if( _isPF[i] and ( rejectedF.find( *it ) != rejectedF.end()) )
+			{
+				// No storing
+				continue;
+			}
 			_floatMethods[i][ *it ] = 0;
 			thetree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<float>", &((_floatMethods[i])[ *it ]) );
 		}
 
 		for(std::vector<std::string>::iterator it = _IVALUES.begin(); it != _IVALUES.end(); ++it)
 		{
+			if( _isPF[i] and ( rejectedI.find( *it ) != rejectedI.end()) )
+			{
+				// No storing
+				continue;
+			}
 			_intMethods[i][ *it ] = 0;
 			thetree->Branch( (instanceCol+"_"+(*it)).c_str(),"std::vector<int>", &((_intMethods[i])[ *it ]) );
 		}
@@ -196,27 +276,30 @@ void MTMuon::registryvalues()
 void MTMuon::storevalues( const int & Ninstance, const pat::Muon & muon )
 {
 	_intMethods[Ninstance]["IsGlobalMuon"]->push_back(muon.isGlobalMuon());
-      	_intMethods[Ninstance]["IsTMLSOLPT"]->push_back(muon.muonID("TMLastStationOptimizedLowPtTight"));
-      	_intMethods[Ninstance]["IsTMLSOLPL"]->push_back(muon.muonID("TMLastStationOptimizedLowPtLoose"));
-        _intMethods[Ninstance]["IsGMPTMuons"]->push_back(muon.muonID("GlobalMuonPromptTight"));
+	if( not _isPF[Ninstance] )
+	{
+		_intMethods[Ninstance]["IsTMLSOLPT"]->push_back(muon.muonID("TMLastStationOptimizedLowPtTight"));
+		_intMethods[Ninstance]["IsTMLSOLPL"]->push_back(muon.muonID("TMLastStationOptimizedLowPtLoose"));
+		_intMethods[Ninstance]["IsTrackerMuonArbitrated"]->push_back(muon.muonID("TrackerMuonArbitrated"));  
+		_intMethods[Ninstance]["IsAllArbitrated"]->push_back(muon.muonID("AllArbitrated"));          
+		_intMethods[Ninstance]["IsTMLastStationLoose"]->push_back(muon.muonID("TMLastStationLoose"));     
+		_intMethods[Ninstance]["IsTMLastStationTight"]->push_back(muon.muonID("TMLastStationTight"));     
+		_intMethods[Ninstance]["IsTM2DCompatibilityLoose"]->push_back(muon.muonID("TM2DCompatibilityLoose")); 
+		_intMethods[Ninstance]["IsTM2DCompatibilityTight"]->push_back(muon.muonID("TM2DCompatibilityTight")); 
+		_intMethods[Ninstance]["IsTMOneStationLoose"]->push_back(muon.muonID("TMOneStationLoose"));      
+		_intMethods[Ninstance]["IsTMOneStationTight"]->push_back(muon.muonID("TMOneStationTight"));      
+		_intMethods[Ninstance]["IsTMLSOPL"]->push_back(muon.muonID("TMLastStationOptimizedLowPtLoose"));                
+		_intMethods[Ninstance]["IsGMTkChiCompatibility"]->push_back(muon.muonID("GMTkChiCompatibility"));   
+		_intMethods[Ninstance]["IsGMStaChiCompatibility"]->push_back(muon.muonID("GMStaChiCompatibility"));  
+		_intMethods[Ninstance]["IsGMTkKinkTight"]->push_back(muon.muonID("GMTkKinkTight"));
+		_intMethods[Ninstance]["IsTMLastStationAngLoose"]->push_back(muon.muonID("TMLastStationAngLoose"));
+		_intMethods[Ninstance]["IsTMOneStationAngLoose"]->push_back(muon.muonID("TMOneStationAngLoose"));
+		_intMethods[Ninstance]["IsTMOneStationAngTight"]->push_back(muon.muonID("TMOneStationAngTight"));
+	}	
+	_intMethods[Ninstance]["IsGMPTMuons"]->push_back(muon.muonID("GlobalMuonPromptTight"));
         _intMethods[Ninstance]["IsAllStandAloneMuons"]->push_back(muon.muonID("AllStandAloneMuons"));     
         _intMethods[Ninstance]["IsAllTrackerMuons"]->push_back(muon.muonID("AllTrackerMuons"));        
-        _intMethods[Ninstance]["IsTrackerMuonArbitrated"]->push_back(muon.muonID("TrackerMuonArbitrated"));  
-        _intMethods[Ninstance]["IsAllArbitrated"]->push_back(muon.muonID("AllArbitrated"));          
-        _intMethods[Ninstance]["IsTMLastStationLoose"]->push_back(muon.muonID("TMLastStationLoose"));     
-        _intMethods[Ninstance]["IsTMLastStationTight"]->push_back(muon.muonID("TMLastStationTight"));     
-        _intMethods[Ninstance]["IsTM2DCompatibilityLoose"]->push_back(muon.muonID("TM2DCompatibilityLoose")); 
-        _intMethods[Ninstance]["IsTM2DCompatibilityTight"]->push_back(muon.muonID("TM2DCompatibilityTight")); 
-        _intMethods[Ninstance]["IsTMOneStationLoose"]->push_back(muon.muonID("TMOneStationLoose"));      
-        _intMethods[Ninstance]["IsTMOneStationTight"]->push_back(muon.muonID("TMOneStationTight"));      
-        _intMethods[Ninstance]["IsTMLSOPL"]->push_back(muon.muonID("TMLastStationOptimizedLowPtLoose"));                
-        _intMethods[Ninstance]["IsGMTkChiCompatibility"]->push_back(muon.muonID("GMTkChiCompatibility"));   
-        _intMethods[Ninstance]["IsGMStaChiCompatibility"]->push_back(muon.muonID("GMStaChiCompatibility"));  
-        _intMethods[Ninstance]["IsGMTkKinkTight"]->push_back(muon.muonID("GMTkKinkTight"));
-        _intMethods[Ninstance]["IsTMLastStationAngLoose"]->push_back(muon.muonID("TMLastStationAngLoose"));
         _intMethods[Ninstance]["IsTMLastStationAngTight"]->push_back(muon.muonID("TMLastStationAngTight"));
-        _intMethods[Ninstance]["IsTMOneStationAngLoose"]->push_back(muon.muonID("TMOneStationAngLoose"));
-        _intMethods[Ninstance]["IsTMOneStationAngTight"]->push_back(muon.muonID("TMOneStationAngTight"));
 
         _intMethods[Ninstance]["Charge"]->push_back(muon.charge());
 
@@ -261,16 +344,19 @@ void MTMuon::storevalues( const int & Ninstance, const pat::Muon & muon )
 	// Global track reference
 	if( (not muon.globalTrack().isNull()) and muon.isGlobalMuon() )
 	{
-		_floatMethods[Ninstance]["OutPosx"]->push_back(muon.globalTrack()->outerPosition().x());
-	 	_floatMethods[Ninstance]["OutPosy"]->push_back(muon.globalTrack()->outerPosition().y());
-		_floatMethods[Ninstance]["OutPosz"]->push_back(muon.globalTrack()->outerPosition().z());
-		_floatMethods[Ninstance]["OutMomx"]->push_back(muon.globalTrack()->outerMomentum().x());
-		_floatMethods[Ninstance]["OutMomy"]->push_back(muon.globalTrack()->outerMomentum().y());
-		_floatMethods[Ninstance]["OutMomz"]->push_back(muon.globalTrack()->outerMomentum().z());
-		_floatMethods[Ninstance]["OutPhi"]->push_back(muon.globalTrack()->outerPhi());
-		_floatMethods[Ninstance]["OutEta"]->push_back(muon.globalTrack()->outerEta());
-		_floatMethods[Ninstance]["OutTheta"]->push_back(muon.globalTrack()->outerTheta());
-		_floatMethods[Ninstance]["OutRadius"]->push_back(muon.globalTrack()->outerRadius());
+		if( not _isPF[Ninstance] )
+		{
+			_floatMethods[Ninstance]["OutPosx"]->push_back(muon.globalTrack()->outerPosition().x());
+			_floatMethods[Ninstance]["OutPosy"]->push_back(muon.globalTrack()->outerPosition().y());
+			_floatMethods[Ninstance]["OutPosz"]->push_back(muon.globalTrack()->outerPosition().z());
+			_floatMethods[Ninstance]["OutMomx"]->push_back(muon.globalTrack()->outerMomentum().x());
+			_floatMethods[Ninstance]["OutMomy"]->push_back(muon.globalTrack()->outerMomentum().y());
+			_floatMethods[Ninstance]["OutMomz"]->push_back(muon.globalTrack()->outerMomentum().z());
+			_floatMethods[Ninstance]["OutPhi"]->push_back(muon.globalTrack()->outerPhi());
+			_floatMethods[Ninstance]["OutEta"]->push_back(muon.globalTrack()->outerEta());
+			_floatMethods[Ninstance]["OutTheta"]->push_back(muon.globalTrack()->outerTheta());
+			_floatMethods[Ninstance]["OutRadius"]->push_back(muon.globalTrack()->outerRadius());
+		}
 
 		_floatMethods[Ninstance]["NormChi2GTrk"]->push_back(muon.globalTrack()->normalizedChi2());
 		

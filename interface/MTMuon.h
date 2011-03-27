@@ -24,6 +24,10 @@
 
 // system include files
 //
+#include<vector>
+#include<string>
+#include<map>
+
 #include "MiniTrees/MiniTreesProducer/interface/MTAtom.h"
 
 #include "TTree.h"
@@ -52,6 +56,7 @@ class MTMuon : public MTAtom
 		
      	private:
 	  	virtual void registryvalues();
+		void updateregister();
 	  	void storevalues( const int & Ninstance, const pat::Muon & muon);
 	  	// ----------member data ---------------------------
 		reco::BeamSpot *_beamSpot;
@@ -60,6 +65,11 @@ class MTMuon : public MTAtom
 
 		// We want a copy of the EventSetup, but it is needed in every event
 		mutable const edm::EventSetup *_setup;
+	
+		// Used to change the behaviour if PF or not
+		std::vector<std::string> _pfRejectINT;
+		std::vector<std::string> _pfRejectFLOAT;
+		std::map<int,bool> _isPF;
 };
 
 #endif

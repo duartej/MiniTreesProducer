@@ -130,7 +130,7 @@ process.minitrees = cms.EDProducer('MiniTreesProducer'
 				),
 			cms.PSet(
 				Type = cms.string('Muon')
-				, Instances = cms.vstring("selectedPatMuons")
+				, Instances = cms.vstring("selectedPatMuons","selectedPatMuonsPF")
 				),
 			cms.PSet(
 				Type = cms.string('Track')
