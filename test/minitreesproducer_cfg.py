@@ -105,6 +105,17 @@ process.source = cms.Source("PoolSource",
     )
 )
 
+
+# PARA poder utilizar el dataset sin pasar por el skim1MuPt blabla
+process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
+process.load("Configuration.StandardSequences.MagneticField_cff")
+#process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+# ----------------
+
 process.minitrees = cms.EDProducer('MiniTreesProducer'
 		,outputFile = cms.string("outputfile.root")
 		,Collections = 
@@ -120,6 +131,10 @@ process.minitrees = cms.EDProducer('MiniTreesProducer'
 			cms.PSet(
 				Type = cms.string('Muon')
 				, Instances = cms.vstring("selectedPatMuons")
+				),
+			cms.PSet(
+				Type = cms.string('Track')
+				, Instances = cms.vstring("generalTracks")
 				),
 			cms.PSet(
 				Type = cms.string('TriggerResults')

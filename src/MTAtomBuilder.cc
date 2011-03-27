@@ -20,6 +20,7 @@
 #include "MiniTrees/MiniTreesProducer/interface/MTEventHeader.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerParticles.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTMuon.h"
+#include "MiniTrees/MiniTreesProducer/interface/MTTrack.h"
 /*#include "../interface/MTMET.hh"
 #include "../interface/MTJet.hh"
 #include "../interface/MTTrack.hh"
@@ -84,12 +85,14 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
 	{
 		p = new MTEventHeader(CollectionType, InstancesCollection);
 	}
-	
-     	if(CollectionType == "Muon" ) 
+	else if(CollectionType == "Muon" ) 
    	{
 	 	p = new MTMuon(CollectionType, InstancesCollection);
    	}
-  	
+     	else if( CollectionType == "Track" )
+     	{
+     		p = new MTTrack(CollectionType, InstancesCollection);
+     	}
 /*     	else if( CollectionType == "MET" )
    	{
 	 	p = new MTMET(CollectionType, InstancesCollection);
@@ -99,10 +102,6 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
    	{
 	 	p = new MTJet(CollectionType, InstancesCollection);
   	}
-     	else if( CollectionType == "Track" )
-     	{
-     		p = new MTTrack(CollectionType, InstancesCollection);
-     	}
      	else if( CollectionType == "GenParticle" )
      	{
      		p = new MTGenParticle(CollectionType, InstancesCollection);

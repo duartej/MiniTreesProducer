@@ -7,6 +7,8 @@
 <use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/BeamSpot"/>
 <use   name="CommonTools/Statistics"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="TrackingTools/IPTools"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>

@@ -76,7 +76,6 @@ void MTEventDirector::preEvent(const edm::Event & iEvent, const edm::EventSetup 
 
 		for(std::vector<std::string>::const_iterator name = instancenames.begin(); name !=  instancenames.end(); ++name)
 		{
-			//FIXME : Error si no esta aqui
 			if( objectname == "Vertex" )
 			{
 				edm::Handle<std::vector<reco::Vertex> > handle; 
@@ -91,13 +90,13 @@ void MTEventDirector::preEvent(const edm::Event & iEvent, const edm::EventSetup 
 				// Product in memory, registring
 				_activehandles[*name] = handle.product();
 			}
-	/*		else if( objectname == "Track" )
+			else if( objectname == "Track" )
 			{
-				edm::Handle<edm::View<pat::Muon> > handle; 
+				edm::Handle<std::vector<reco::Track> > handle; 
 				iEvent.getByLabel( (*name), handle);
 				// Product in memory, registring
 				_activehandles[*name] = handle.product();
-			}*/
+			}
 		}
 	}
 }
@@ -124,15 +123,41 @@ void MTEventDirector::produceEvent()
 
 void * MTEventDirector::requestProduct(const std::string & instance)
 {
+	std::string realinstancename = instance;
+	// If this method is called with the generic name of an object, it will take the first
+	// instance of that object. Checking that possibility 
+	if( _activehandles.find( instance ) == _activehandles.end() )
+	{
+		// Not found the string 'instance' as key, assuming that 'instance'
+		// is a generic object name
+		for(std::list<MTAtom *>::iterator it = _mtatoms.begin(); it != _mtatoms.end(); ++it)
+		{
+			const std::string objectname = (*it)->getobjectname();
+			if( instance == objectname )
+			{
+				const std::vector<std::string> instancenames = (*it)->getinstancesnames();
+				// Just the first one
+				realinstancename = instancenames.at(0);
+				break;
+			}
+		}
+	}
+	// Converted 'instance' argument to real instance of an object (if needed)
+
 	for(std::map<std::string,const void *>::iterator it = _activehandles.begin(); it != _activehandles.end(); ++it)
 	{
-		if( instance == it->first )
+		if( realinstancename == it->first )
 		{
 			// In order to treat with edm::Handle (overloaded * operator)
 			return const_cast<void *>(it->second);
 		}
 	}
-
-	//Lanzar exception de cms
-	return 0;
+	//Lanzar exception de cms o devolver 0?
+	throw cms::Exception("UnimplementedFeature") <<  "MTEventDirector::requestProduct: the type " << instance <<
+			" can not be retrieved because is not implemented!\n" << 
+			"You can do it in the MTEventDirector::preEvent method" << std::endl;
+	// Creo que es mejor que devuelva 0 (vector nulo) cuando no encuentra lo que busca, de esta
+	// forma el usuario puede decidir que hacer pero siempre debe comprobar que el vector devuelto no 
+	// es nulo
+	// return 0;
 }

@@ -1,12 +1,12 @@
 // -*- C++ -*-
 //
 // Package:    MiniTressProducer
-// Class:      MTMuon
+// Class:      MTTrack
 // 
-/**\class MTMuon MTMuon.h MiniTrees/MiniTreesProducer/src/MTMuon.cc 
+/**\class MTTrack MTTrack.h MiniTrees/MiniTreesProducer/src/MTTrack.cc 
 
  Description: Create a TTree with the concrete instances of the
-           Muon Physic Object
+           Track Physic Object
 
  Implementation:
      Implements the concrete constructor and analyze method for the 
@@ -19,32 +19,31 @@
 //
 //
 
-#ifndef MTMuon_HH
-#define MTMuon_HH
+#ifndef MTTrack_HH
+#define MTTrack_HH
 
 // system include files
 //
+#include <utility>
+
 #include "MiniTrees/MiniTreesProducer/interface/MTAtom.h"
 
 #include "TTree.h"
 
-#include "DataFormats/PatCandidates/interface/Muon.h"
-
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-//#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 //
 // class declaration
 //
 
-class MTMuon : public MTAtom 
+class MTTrack : public MTAtom 
 {
      	public:
-	  	MTMuon(const std::string&, const std::vector<std::string>&);
-	  	virtual ~MTMuon();
+	  	MTTrack(const std::string&, const std::vector<std::string>&);
+	  	virtual ~MTTrack();
 		
 	  	virtual void produce(MTEventDirector * eventdirector);
 	  	virtual void initbranches( TTree * thetree );
@@ -52,13 +51,13 @@ class MTMuon : public MTAtom
 		
      	private:
 	  	virtual void registryvalues();
-	  	void storevalues( const int & Ninstance, const pat::Muon & muon);
-	  	// ----------member data ---------------------------
-		reco::BeamSpot *_beamSpot;
-		std::vector<reco::Vertex> *_vertices;
-		std::vector<reco::Track> *_tracks;
+	  	void storevalues( const int & Ninstance, const reco::Track & track);
 
-		// We want a copy of the EventSetup, but it is needed in every event
+		std::pair<bool,Measurement1D> computeIP( const reco::Track & track );
+		std::pair<bool,Measurement1D> computeIPz( const reco::Track & track );
+	  	// ----------member data ---------------------------
+		std::vector<reco::Vertex> *_vertices;
+
 		mutable const edm::EventSetup *_setup;
 };
 

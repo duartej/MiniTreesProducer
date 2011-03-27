@@ -101,7 +101,7 @@ void MTMuon::initbranches( TTree * thetree )
 {
      	for(unsigned int i=0; i < _InstancesCollection.size(); ++i)
    	{
-		const std::string instanceCol("T_Muon_"+_InstancesCollection[i] ); // -->TODO: Preguntar si quieren el nombre de la coleccion
+		const std::string instanceCol("T_Muon"); 
 
 		for(std::vector<std::string>::iterator it = _FVALUES.begin(); it != _FVALUES.end(); ++it)
 		{
@@ -195,7 +195,7 @@ void MTMuon::registryvalues()
 
 void MTMuon::storevalues( const int & Ninstance, const pat::Muon & muon )
 {
-	_intMethods[Ninstance]["isGlobalMuon"]->push_back(muon.isGlobalMuon());
+	_intMethods[Ninstance]["IsGlobalMuon"]->push_back(muon.isGlobalMuon());
       	_intMethods[Ninstance]["IsTMLSOLPT"]->push_back(muon.muonID("TMLastStationOptimizedLowPtTight"));
       	_intMethods[Ninstance]["IsTMLSOLPL"]->push_back(muon.muonID("TMLastStationOptimizedLowPtLoose"));
         _intMethods[Ninstance]["IsGMPTMuons"]->push_back(muon.muonID("GlobalMuonPromptTight"));
@@ -229,7 +229,7 @@ void MTMuon::storevalues( const int & Ninstance, const pat::Muon & muon )
         _floatMethods[Ninstance]["Energy"]->push_back(muon.energy());
         
 	_floatMethods[Ninstance]["SegmentCompatibility"]->push_back(muon::segmentCompatibility(muon));
-	
+
 	// Using the inner track reference
 	if( not muon.innerTrack().isNull() )
 	{
@@ -287,8 +287,9 @@ void MTMuon::storevalues( const int & Ninstance, const pat::Muon & muon )
 
 			_floatMethods[Ninstance]["IPSigGTrack"]->push_back( mess1D.significance() );
 			_floatMethods[Ninstance]["IPAbsGTrack"]->push_back( mess1D.value() );
-			DONDE CONYO ESTA DEFINIDO ImpactParameterComputer ?????
-			*/
+			DONDE CONYO ESTA DEFINIDO ImpactParameterComputer --> Hay que desargarse el pacquete
+			Ver MTTracks un workaround de esto, utilizando funciones que no hay que descargar
+			// */
 			
 			// Beta and DeltaBeta
 			float beta = 0.0;
