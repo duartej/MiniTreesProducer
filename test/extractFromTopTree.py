@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+#####
+##  Utility to extract from a reference file
+##  the int,bool and float branches in it,
+##  printing for each kind the initialization
+##  code to be putted in the registryvalues 
+##  method of the class.
+##
+##  Use: python extractFromTopTree.py <name_collection>
+#####
+
 import sys
 
 f = open('TopTreeProducer_25Marzo.cc')

@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+#####
+##  Utility to check if the MTAtom class
+##  source file is coherently constructed,
+##  i.e. the registryvalues and storevalues
+##  methods have the same branches.
+##
+##  Use: python checkkeydicts.py <MTclass.cc>
+####
+
 import sys
 
 fname = sys.argv[1]
