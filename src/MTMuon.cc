@@ -271,6 +271,7 @@ void MTMuon::registryvalues()
 	_FVALUES.push_back("Beta");
 	_FVALUES.push_back("DeltaBeta");
 
+
 }
 
 void MTMuon::storevalues( const int & Ninstance, const pat::Muon & muon )

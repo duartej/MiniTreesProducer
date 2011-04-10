@@ -9,6 +9,8 @@
 <use   name="CommonTools/Statistics"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="TrackingTools/IPTools"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="MagneticField/Engine"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>

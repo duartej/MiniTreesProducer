@@ -17,6 +17,7 @@
 MTAtom::MTAtom(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
 :_InstancesCollection( InstancesCollection ), _objectname( CollectionType )
 {
+	//_NInstances = _InstancesCollection.size(); --> Could be in here?
 	// A daughter must have this code in her constructor
 	// registryvalues();
 	// initialize();

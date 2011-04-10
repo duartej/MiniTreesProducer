@@ -33,7 +33,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+//#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 //
 // class declaration
@@ -53,8 +53,8 @@ class MTTrack : public MTAtom
 	  	virtual void registryvalues();
 	  	void storevalues( const int & Ninstance, const reco::Track & track);
 
-		std::pair<bool,Measurement1D> computeIP( const reco::Track & track );
-		std::pair<bool,Measurement1D> computeIPz( const reco::Track & track );
+	//	std::pair<bool,Measurement1D> computeIP( const reco::Track & track );
+	//	std::pair<bool,Measurement1D> computeIPz( const reco::Track & track );
 	  	// ----------member data ---------------------------
 		std::vector<reco::Vertex> *_vertices;
 

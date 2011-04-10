@@ -20,31 +20,17 @@
 #include "MiniTrees/MiniTreesProducer/interface/MTEventHeader.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTTriggerParticles.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTMuon.h"
+#include "MiniTrees/MiniTreesProducer/interface/MTElectron.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTTrack.h"
 /*#include "../interface/MTMET.hh"
 #include "../interface/MTJet.hh"
-#include "../interface/MTTrack.hh"
 #include "../interface/MTGenParticle.hh"*/
 /*
-#include "../../MTAtom/interface/MTElectron.hh"
 #include "../../MTAtom/interface/MTMToton.hh"
-#include "../../MTAtom/interface/MTPF.hh"
 #include "../../MTAtom/interface/MTBTag.hh"
 #include "../../MTAtom/interface/MTTauId.hh"
 // */
 
-// Overload to construct the event content header part
-/*MTAtom * MTAtomBuilder::Build()
-{
-	// dummy variables: //FIXME: cambia la declarcion de EventContent para que no necesite de estos argumentos
-	std::string dummy1;
-	std::vector<std::string> dummy2;
-
-	MTAtom * p = 0;
-	p = new EventHeader( dummy1, dummy2 );
-
-	return p;
-}// */
 
 MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
 {
@@ -88,6 +74,10 @@ MTAtom *MTAtomBuilder::Build(const edm::ParameterSet & iConfig )
 	else if(CollectionType == "Muon" ) 
    	{
 	 	p = new MTMuon(CollectionType, InstancesCollection);
+   	}
+	else if(CollectionType == "Electron" ) 
+   	{
+	 	p = new MTElectron(CollectionType, InstancesCollection);
    	}
      	else if( CollectionType == "Track" )
      	{

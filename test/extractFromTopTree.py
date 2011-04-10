@@ -25,7 +25,10 @@ for l in lines:
 		var = l.split('<')[1].split('>')[0]
 		variables.add( (var,l[where:].split(';')[0]) ) 
 
-for v in variables:
+# Ordering by variable name
+sortedvar = map(lambda y: (y[1],y[0]),sorted(map(lambda x: (x[1],x[0]),variables)))
+
+for v in sortedvar:
 	if v[0] == 'int':
 		print '_IVALUES.push_back("'+v[1]+'");'
 	elif v[0] == 'float':

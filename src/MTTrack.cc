@@ -2,9 +2,11 @@
 #include "MiniTrees/MiniTreesProducer/interface/MTTrack.h"
 #include "MiniTrees/MiniTreesProducer/interface/MTEventDirector.h"
 
-#include "TrackingTools/IPTools/interface/IPTools.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+//#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/IPTools/interface/ImpactParameterComputer.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+//#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+//#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 
 MTTrack::MTTrack(const std::string & CollectionType, const std::vector<std::string> & InstancesCollection)
@@ -112,6 +114,13 @@ void MTTrack::registryvalues()
         _FVALUES.push_back("IPzSignedSig");
         _FVALUES.push_back("IPSig");
         _FVALUES.push_back("IPAbs");
+	
+	// TEST-DEBUG
+	_FVALUES.push_back("IPZSIG_MINUS_IPZSIGMINE");
+	_FVALUES.push_back("IPZ_MINUS_IPZMINE");
+	_FVALUES.push_back("IPSIG_MINUS_IPSIGMINE");
+	_FVALUES.push_back("IP_MINUS_IPMINE");
+	// TEST-DEBUG
 }
 
 void MTTrack::storevalues( const int & Ninstance, const reco::Track & track )
@@ -133,6 +142,7 @@ void MTTrack::storevalues( const int & Ninstance, const reco::Track & track )
 	// --- Compute the IP-- FIXME: QUIZAS NO ES LO MISMO
 	if( this->_vertices->size() > 0 )
 	{
+		/* It seeems do not fit the behaviour of computeIP
 		std::pair<bool,Measurement1D> pair_mess1D = this->computeIP(track);
 		if( pair_mess1D.first ) 
 		{
@@ -146,10 +156,19 @@ void MTTrack::storevalues( const int & Ninstance, const reco::Track & track )
 			_floatMethods[Ninstance]["IPz"]->push_back( pair_mess1D_z.second.value() );
 			_floatMethods[Ninstance]["IPzSignedSig"]->push_back( pair_mess1D_z.second.significance() );
 		}
+		*/
+		IPTools::ImpactParameterComputer IPComp( this->_vertices->at(0) );
+		Measurement1D mess1D = IPComp.computeIP( *(this->_setup), track );
+		Measurement1D mess1DZ = IPComp.computeIPdz( *(this->_setup), track );
+
+		_floatMethods[Ninstance]["IPAbs"]->push_back( mess1D.value() ) ;
+		_floatMethods[Ninstance]["IPSig"]->push_back( mess1D.significance() );
+		_floatMethods[Ninstance]["IPz"]->push_back( mess1DZ.value()) ;
+		_floatMethods[Ninstance]["IPzSignedSig"]->push_back( mess1DZ.significance() );
 	}
 }
 
-std::pair<bool,Measurement1D> MTTrack::computeIP(const reco::Track & tr )
+/*std::pair<bool,Measurement1D> MTTrack::computeIP(const reco::Track & tr )
 {
 	//get the transient track (e.g. for the muon track)
 	edm::ESHandle<TransientTrackBuilder> builder;
@@ -171,4 +190,4 @@ std::pair<bool,Measurement1D> MTTrack::computeIPz(const reco::Track & tr )
 	// Must be checked before the size of vertices > 0
 
 	return IPTools::absoluteTransverseImpactParameter( transTrack, this->_vertices->at(0) );
-}
+}*/

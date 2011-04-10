@@ -18,7 +18,14 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 
 MTEventDirector::MTEventDirector(const edm::ParameterSet & iConfig)
 	:_Event(0)
@@ -90,6 +97,13 @@ void MTEventDirector::preEvent(const edm::Event & iEvent, const edm::EventSetup 
 				// Product in memory, registring
 				_activehandles[*name] = handle.product();
 			}
+			else if( objectname == "Electron" )
+			{
+				edm::Handle<edm::View<pat::Electron> > handle; 
+				iEvent.getByLabel( (*name), handle);
+				// Product in memory, registring
+				_activehandles[*name] = handle.product();
+			}
 			else if( objectname == "Track" )
 			{
 				edm::Handle<std::vector<reco::Track> > handle; 
@@ -98,6 +112,44 @@ void MTEventDirector::preEvent(const edm::Event & iEvent, const edm::EventSetup 
 				_activehandles[*name] = handle.product();
 			}
 		}
+	}
+
+	// Magnetic Field ---
+	// If is real data then derive bfield using the
+	// magnet current from DcsStatus
+	// otherwise take it from the IdealMagneticFieldRecord
+	this->_bField = 0.0;
+	if( iEvent.eventAuxiliary().isRealData() )
+	{
+		// scale factor = 3.801/18166.0 which are
+		// average values taken over a stable two
+		// week period
+		edm::Handle<std::vector<DcsStatus> > dcsHandle;
+		iEvent.getByLabel("scalersRawToDigi", dcsHandle);
+		
+		if( dcsHandle.isValid() ) 
+		{
+			if( (*dcsHandle).size()==0 )
+			{
+				edm::LogError("DetStatus") << "Error! dcsStatus has size 0, bField set to magneticField->inTesla(GlobalPoint(0.,0.,0.)).z()" ;
+				edm::ESHandle<MagneticField> magneticField;
+				iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+				this->_bField = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
+			}
+			else 
+			{
+				float currentToBFieldScaleFactor = 2.09237036221512717e-04;
+				float current = (*dcsHandle)[0].magnetCurrent();
+				this->_bField = current*currentToBFieldScaleFactor;
+			}
+		}
+	}
+	else 
+	{
+		edm::ESHandle<MagneticField> magneticField;
+		iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+		
+		this->_bField = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
 	}
 }
 
@@ -128,9 +180,11 @@ void * MTEventDirector::requestProduct(const std::string & instance)
 	// instance of that object. Checking that possibility 
 	if( _activehandles.find( instance ) == _activehandles.end() )
 	{
-		// Not found the string 'instance' as key, assuming that 'instance'
-		// is a generic object name
-		for(std::list<MTAtom *>::iterator it = _mtatoms.begin(); it != _mtatoms.end(); ++it)
+		// Not found the string 'instance' as key of the dict, so assuming that 'instance'
+		// is a generic object name (Track, Muon, ...)
+		realinstancename = labelFromGenericName( instance );
+
+		/*for(std::list<MTAtom *>::iterator it = _mtatoms.begin(); it != _mtatoms.end(); ++it)
 		{
 			const std::string objectname = (*it)->getobjectname();
 			if( instance == objectname )
@@ -140,10 +194,10 @@ void * MTEventDirector::requestProduct(const std::string & instance)
 				realinstancename = instancenames.at(0);
 				break;
 			}
-		}
+		}*/
 	}
-	// Converted 'instance' argument to real instance of an object (if needed)
 
+	// Now, got a real name of an instance
 	for(std::map<std::string,const void *>::iterator it = _activehandles.begin(); it != _activehandles.end(); ++it)
 	{
 		if( realinstancename == it->first )
@@ -160,4 +214,20 @@ void * MTEventDirector::requestProduct(const std::string & instance)
 	// forma el usuario puede decidir que hacer pero siempre debe comprobar que el vector devuelto no 
 	// es nulo
 	// return 0;
+}
+
+std::string MTEventDirector::labelFromGenericName( const std::string & genericName )
+{
+	for(std::list<MTAtom *>::iterator it = _mtatoms.begin(); it != _mtatoms.end(); ++it)
+	{
+		const std::string objectname = (*it)->getobjectname();
+		if( genericName == objectname )
+		{
+			const std::vector<std::string> instancenames = (*it)->getinstancesnames();
+			// Just the first one
+			return instancenames.at(0);
+		}
+	}
+
+	return std::string();
 }
